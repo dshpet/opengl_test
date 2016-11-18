@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <string>
+#include "Shader.h"
 
 // shaders
 const char * VertexShader =
@@ -84,6 +85,11 @@ int main()
 
 	glfwSetKeyCallback(window, KeyCallback);
 
+	Shader shader(
+		"../Shaders/vertex.vs",
+		"../Shaders/fragment.frag"
+	);
+
 	GLfloat triangleVerticies[] = {
 		-0.5f, 0.0f, 0.0f,
 		0.5f, 0.0f, 0.0f,
@@ -129,6 +135,7 @@ int main()
 
 	glBindVertexArray(0);
 
+	/*
 	GLuint vertexShader;
 	vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertexShader, 1, &VertexShader, nullptr);
@@ -169,8 +176,9 @@ int main()
 		glGetShaderInfoLog(shaderProgram, sizeof(info), nullptr, info);
 		std::cout << "Shader linker failed: " << info << std::endl;
 	}
-
+	*/
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -183,8 +191,9 @@ int main()
 		GLfloat redVal = cos(time) / 2 + 0.5;
 		GLfloat greenVal = sin(time) / 2 + 0.5;
 		GLfloat blueVal = sin(time + time / 2) / 2 + 0.5;
-		GLint vertexColorLocation = glGetUniformLocation(shaderProgram, "defaultColor");
-		glUseProgram(shaderProgram);
+
+		GLint vertexColorLocation = glGetUniformLocation(shader.GetProgramId(), "defaultColor");
+		shader.Use();
 		glUniform4f(vertexColorLocation, redVal, greenVal, blueVal, 1.0f);
 		glBindVertexArray(VAO);
 		
