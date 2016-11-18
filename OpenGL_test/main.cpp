@@ -9,10 +9,15 @@
 const char * VertexShader =
 "#version 330 core\n"
 "layout (location = 0) in vec3 position;\n"
+"layout (location = 1) in vec3 color;\n"
+
 "out vec4 pos;\n"
+"out vec3 vert_color;\n"
+
 "void main()\n"
 "{\n"
 "	pos = vec4(position.x, position.y, position.z, 1.0);\n"
+"	vert_color = color;\n"
 "	gl_Position = pos;\n"
 "}"
 ;
@@ -20,10 +25,15 @@ const char * VertexShader =
 const char * FragmentShader =
 "#version 330 core\n"
 "in vec4 pos;\n"
+"in vec3 vert_color;\n"
+
 "out vec4 color;\n"
+
+"uniform vec4 defaultColor;\n"
+
 "void main()\n"
 "{\n"
-"	color = vec4(pos.x, pos.y, pos.z, 1.0);\n"
+"	color = vec4(vert_color, 1.0f);\n"
 "}"
 ;
 
@@ -84,10 +94,11 @@ int main()
 		0.9f, 0.0f, 0.0f
 	};
 	GLfloat verticies[] = {
-		 0.5f,  0.5f, 0.0f,
-		 0.5f, -0.5f, 0.0f,
-		-0.5f, -0.5f, 0.0f,
-		-0.5f,  0.5f, 0.0f
+		// Positions			// Colors
+		 0.5f,  0.5f, 0.0f,		1.0f, 0.0f, 0.0f, 
+		 0.5f, -0.5f, 0.0f,		0.0f, 1.0f, 0.0f,
+		-0.5f, -0.5f, 0.0f,		0.0f, 0.0f, 1.0f,  
+		-0.5f,  0.5f, 0.0f,		0.0f, 0.0f, 0.0f,
 	};
 	GLuint indices[] = {
 		0, 1, 3,
@@ -108,8 +119,14 @@ int main()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
+	// Vertex pos
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (GLvoid *)nullptr);
 	glEnableVertexAttribArray(0);
+
+	// Vertex color
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (GLvoid *)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
 	glBindVertexArray(0);
 
 	GLuint vertexShader;
@@ -144,6 +161,7 @@ int main()
 	glLinkProgram(shaderProgram);
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
+
 	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
 	if (!success)
 	{
@@ -161,7 +179,13 @@ int main()
 		glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 	
+		GLfloat time = glfwGetTime();
+		GLfloat redVal = cos(time) / 2 + 0.5;
+		GLfloat greenVal = sin(time) / 2 + 0.5;
+		GLfloat blueVal = sin(time + time / 2) / 2 + 0.5;
+		GLint vertexColorLocation = glGetUniformLocation(shaderProgram, "defaultColor");
 		glUseProgram(shaderProgram);
+		glUniform4f(vertexColorLocation, redVal, greenVal, blueVal, 1.0f);
 		glBindVertexArray(VAO);
 		
 		//glDrawArrays(GL_TRIANGLES, 0, 6);
