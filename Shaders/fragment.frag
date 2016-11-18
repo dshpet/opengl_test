@@ -9,5 +9,5 @@ uniform vec4 defaultColor;
 
 void main()
 {
-	color = vec4(vert_color, 1.0f);
+	color = defaultColor;
 }
