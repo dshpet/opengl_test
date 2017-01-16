@@ -157,6 +157,10 @@
   <ItemGroup>
     <ResourceCompile Include="OpenGL_test.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Shaders\fragment.frag" />
+    <None Include="..\Shaders\vertex.vs" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

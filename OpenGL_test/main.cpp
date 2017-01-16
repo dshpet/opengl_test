@@ -113,8 +113,13 @@ int main()
 		GLfloat blueVal = sin(time + time / 2) / 2 + 0.5;
 
 		GLint vertexColorLocation = glGetUniformLocation(shader.GetProgramId(), "defaultColor");
+		GLint vertexTimeLocation = glGetUniformLocation(shader.GetProgramId(), "time");
+
 		shader.Use();
+
 		glUniform4f(vertexColorLocation, redVal, greenVal, blueVal, 1.0f);
+		glUniform1f(vertexTimeLocation, sin(time));
+
 		glBindVertexArray(VAO);
 		
 		//glDrawArrays(GL_TRIANGLES, 0, 6);
