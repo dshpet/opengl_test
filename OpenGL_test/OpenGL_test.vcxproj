@@ -74,16 +74,16 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\libs\glew\include;C:\libs\glfw_bin\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\libs\glew\lib\Release\x64;C:\libs\glfw_bin\lib-vc2015;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\Downloads\Other\soil\Simple OpenGL Image Library\src;C:\libs\glew\include;C:\libs\glfw_bin\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\Downloads\Other\soil\Simple OpenGL Image Library\projects\VC9\x64\Release;C:\libs\glew\lib\Release\x64;C:\libs\glfw_bin\lib-vc2015;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\libs\glew\include;C:\libs\glfw_bin\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\libs\glew\lib\Release\x64;C:\libs\glfw_bin\lib-vc2015;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\Downloads\Other\soil\Simple OpenGL Image Library\src;C:\libs\glew\include;C:\libs\glfw_bin\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\Downloads\Other\soil\Simple OpenGL Image Library\projects\VC9\x64\Release;C:\libs\glew\lib\Release\x64;C:\libs\glfw_bin\lib-vc2015;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -109,7 +109,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glew32s.lib;opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SOIL.lib;glew32s.lib;opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -144,10 +144,11 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glew32s.lib;opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SOIL.lib;glew32s.lib;opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="copypaste_test.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -158,6 +159,8 @@
     <ResourceCompile Include="OpenGL_test.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Shaders\copypaste_fragment.frag" />
+    <None Include="..\Shaders\copypaste_vertex.vs" />
     <None Include="..\Shaders\fragment.frag" />
     <None Include="..\Shaders\vertex.vs" />
   </ItemGroup>

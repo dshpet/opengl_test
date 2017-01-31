@@ -1,13 +1,13 @@
 #version 330 core
 
-in vec4 pos;
 in vec3 vert_color;
+in vec2 tex_coord;
 
 out vec4 color;
 
-uniform vec4 defaultColor;
+uniform sampler2D assigned_texture;
 
 void main()
 {
-	color = defaultColor;
+	color = texture(assigned_texture, tex_coord);
 }

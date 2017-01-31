@@ -1,9 +1,15 @@
+// a tutorial leurningu from
+// https://learnopengl.com/
+
+#if !defined IS_TEST_ENABLED
+
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 #include <iostream>
 #include <string>
+#include <SOIL.h>
 #include "Shader.h"
 
 void KeyCallback(GLFWwindow * window, int key, int scancode, int action, int mode)
@@ -63,17 +69,17 @@ int main()
 		0.9f, 0.0f, 0.0f
 	};*/
 	GLfloat verticies[] = {
-		// Positions			// Colors
-		 0.5f,  0.5f, 0.0f,		1.0f, 0.0f, 0.0f, 
-		 0.5f, -0.5f, 0.0f,		0.0f, 1.0f, 0.0f,
-		-0.5f, -0.5f, 0.0f,		0.0f, 0.0f, 1.0f,  
-		-0.5f,  0.5f, 0.0f,		0.0f, 0.0f, 0.0f,
+		 // Positions			// Colors				// Texture
+		 0.5f,  0.5f, 0.0f,		1.0f, 0.0f, 0.0f,		1.0f, 1.0f,
+		 0.5f, -0.5f, 0.0f,		0.0f, 1.0f, 0.0f,		1.0f, 0.0f,
+		-0.5f, -0.5f, 0.0f,		0.0f, 0.0f, 1.0f,		0.0f, 0.0f,
+		-0.5f,  0.5f, 0.0f,		0.0f, 0.0f, 0.0f,		0.0f, 1.0f,
 	};
 	GLuint indices[] = {
 		0, 1, 3,
 		1, 2, 3
 	};
-	
+
 	GLuint VAO;
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
@@ -89,16 +95,41 @@ int main()
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	// Vertex pos
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (GLvoid *)nullptr);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid *)nullptr);
 	glEnableVertexAttribArray(0);
 
 	// Vertex color
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (GLvoid *)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid *)(3 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(1);
+
+	// texture
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid *)(6 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(2);
 
 	glBindVertexArray(0);
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	// create texture	
+	GLuint texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	// Set the texture wrapping parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	// Set texture filtering parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	// load texture image
+	int imgWidth;
+	int imgHeight;
+	unsigned char * img = SOIL_load_image("../Textures/wall.jpg", &imgWidth, &imgHeight, nullptr, SOIL_LOAD_RGB);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imgWidth, imgHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, img);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	SOIL_free_image_data(img);
+	glBindTexture(GL_TEXTURE_2D, 0);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -106,22 +137,12 @@ int main()
 
 		glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-	
-		GLfloat time = glfwGetTime();
-		GLfloat redVal = cos(time) / 2 + 0.5;
-		GLfloat greenVal = sin(time) / 2 + 0.5;
-		GLfloat blueVal = sin(time + time / 2) / 2 + 0.5;
 
-		GLint vertexColorLocation = glGetUniformLocation(shader.GetProgramId(), "defaultColor");
-		GLint vertexTimeLocation = glGetUniformLocation(shader.GetProgramId(), "time");
+		glBindTexture(GL_TEXTURE_2D, texture);
 
 		shader.Use();
 
-		glUniform4f(vertexColorLocation, redVal, greenVal, blueVal, 1.0f);
-		glUniform1f(vertexTimeLocation, sin(time));
-
-		glBindVertexArray(VAO);
-		
+		glBindVertexArray(VAO);		
 		//glDrawArrays(GL_TRIANGLES, 0, 6);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 		glBindVertexArray(0);
@@ -129,7 +150,14 @@ int main()
 		glfwSwapBuffers(window);
 	}
 	
+	// shutdown
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &EBO);
+
 	glfwTerminate();
 
 	return 0;
 }
+
+#endif // quick switching between test version and mine
