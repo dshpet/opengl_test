@@ -10,12 +10,44 @@
 #include <iostream>
 #include <string>
 #include <SOIL.h>
+#include <algorithm>
 #include "Shader.h"
+
+//
+// Globals
+//
+
+GLfloat g_blending = 0.2f;
+
+//
+// Constants
+//
+
+const int WIDTH  = 800;
+const int HEIGHT = 600;
+
+const GLfloat BLENDING_DELTA =  0.05f;
+const GLfloat BLENDING_MIN	 = -1.0f;
+const GLfloat BLENDING_MAX   =  1.0f;
+
+//
+// Logic
+//
 
 void KeyCallback(GLFWwindow * window, int key, int scancode, int action, int mode)
 {
-	if (key == GLFW_KEY_ESCAPE &&
-		action == GLFW_PRESS)
+	if (key == GLFW_KEY_UP && action == GLFW_PRESS)
+	{ 
+		g_blending += BLENDING_DELTA;
+		g_blending = std::min(g_blending, BLENDING_MAX); // bound values
+	}
+	if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
+	{
+		g_blending -= BLENDING_DELTA;
+		g_blending = std::max(g_blending, BLENDING_MIN); // bound values
+	}
+	else
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 	{
 		glfwSetWindowShouldClose(window, GL_TRUE);
 	}
@@ -30,7 +62,7 @@ int main()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	
-	GLFWwindow * window = glfwCreateWindow(800, 600, "YAY", nullptr, nullptr);
+	GLFWwindow * window = glfwCreateWindow(WIDTH, HEIGHT, "YAY", nullptr, nullptr);
 	if (window == nullptr)
 	{
 		std::cout << "NO WINDOW FOR OYU" << std::endl;
@@ -61,10 +93,10 @@ int main()
 
 	const GLfloat verticies[] = {
 		 // Positions			// Colors				// Texture
-		 0.5f,  0.5f, 0.0f,		1.0f, 0.0f, 0.0f,		1.0f, 1.0f,
-		 0.5f, -0.5f, 0.0f,		0.0f, 1.0f, 0.0f,		1.0f, 0.0f,
+		 0.5f,  0.5f, 0.0f,		1.0f, 0.0f, 0.0f,		2.0f, 2.0f,
+		 0.5f, -0.5f, 0.0f,		0.0f, 1.0f, 0.0f,		2.0f, 0.0f,
 		-0.5f, -0.5f, 0.0f,		0.0f, 0.0f, 1.0f,		0.0f, 0.0f,
-		-0.5f,  0.5f, 0.0f,		0.0f, 0.0f, 0.0f,		0.0f, 1.0f,
+		-0.5f,  0.5f, 0.0f,		0.0f, 0.0f, 0.0f,		0.0f, 2.0f,
 	};
 	const GLuint indices[] = {
 		0, 1, 3,
@@ -131,8 +163,8 @@ int main()
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, texture2);
 	// Set the texture wrapping parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
 	// Set texture filtering parameters
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -153,7 +185,7 @@ int main()
 		glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		const auto && const shaderId = shader.GetProgramId(); // joke type
+		const GLuint shaderId = shader.GetProgramId();
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture1);
@@ -162,6 +194,8 @@ int main()
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
 		glUniform1i(glGetUniformLocation(shaderId, "assigned_texture2"), 1);
+
+		glUniform1f(glGetUniformLocation(shaderId, "blending"), g_blending);
 
 		shader.Use();
 
