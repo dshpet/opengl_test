@@ -1,7 +1,7 @@
 // a tutorial leurningu from
 // https://learnopengl.com/
 
-#if !defined IS_TEST_ENABLED
+#if !defined IS_TEST_ENABLED // quick switching between test version and mine
 
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -54,28 +54,19 @@ int main()
 
 	glfwSetKeyCallback(window, KeyCallback);
 
-	Shader shader(
+	const Shader shader(
 		"../Shaders/vertex.vs",
 		"../Shaders/fragment.frag"
 	);
 
-	/*GLfloat triangleVerticies[] = {
-		-0.5f, 0.0f, 0.0f,
-		0.5f, 0.0f, 0.0f,
-		0.0f, 0.5f, 0.0f,
-
-		0.6f, -0.4f, 0.0f,
-		0.9f, -0.4f, 0.0f,
-		0.9f, 0.0f, 0.0f
-	};*/
-	GLfloat verticies[] = {
+	const GLfloat verticies[] = {
 		 // Positions			// Colors				// Texture
 		 0.5f,  0.5f, 0.0f,		1.0f, 0.0f, 0.0f,		1.0f, 1.0f,
 		 0.5f, -0.5f, 0.0f,		0.0f, 1.0f, 0.0f,		1.0f, 0.0f,
 		-0.5f, -0.5f, 0.0f,		0.0f, 0.0f, 1.0f,		0.0f, 0.0f,
 		-0.5f,  0.5f, 0.0f,		0.0f, 0.0f, 0.0f,		0.0f, 1.0f,
 	};
-	GLuint indices[] = {
+	const GLuint indices[] = {
 		0, 1, 3,
 		1, 2, 3
 	};
@@ -110,10 +101,12 @@ int main()
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	// create texture	
-	GLuint texture;
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	// create textures
+	// texture 1
+	GLuint texture1;
+	glGenTextures(1, &texture1);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture1);
 	// Set the texture wrapping parameters
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -128,6 +121,28 @@ int main()
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imgWidth, imgHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, img);
 	glGenerateMipmap(GL_TEXTURE_2D);
+	
+	SOIL_free_image_data(img);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// texture 2
+	GLuint texture2;
+	glGenTextures(1, &texture2);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, texture2);
+	// Set the texture wrapping parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	// Set texture filtering parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	// load texture image
+	img = SOIL_load_image("../Textures/awesomeface.png", &imgWidth, &imgHeight, nullptr, SOIL_LOAD_RGB);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imgWidth, imgHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, img);
+	glGenerateMipmap(GL_TEXTURE_2D);
+
 	SOIL_free_image_data(img);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -138,7 +153,15 @@ int main()
 		glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glBindTexture(GL_TEXTURE_2D, texture);
+		const auto && const shaderId = shader.GetProgramId(); // joke type
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture1);
+		glUniform1i(glGetUniformLocation(shaderId, "assigned_texture1"), 0);
+
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, texture2);
+		glUniform1i(glGetUniformLocation(shaderId, "assigned_texture2"), 1);
 
 		shader.Use();
 
@@ -146,6 +169,7 @@ int main()
 		//glDrawArrays(GL_TRIANGLES, 0, 6);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 		glBindVertexArray(0);
+		glBindTexture(GL_TEXTURE_2D, 0);
 
 		glfwSwapBuffers(window);
 	}
