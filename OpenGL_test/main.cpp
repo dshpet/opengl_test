@@ -7,6 +7,10 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include <iostream>
 #include <string>
 #include <SOIL.h>
@@ -178,6 +182,10 @@ int main()
 	SOIL_free_image_data(img);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
+	// transformation
+	//glm::mat4 translation;
+	//translation = glm::translate(translation, glm::vec3(0.0f, 0.0f, 0.0f));
+
 	while (!glfwWindowShouldClose(window))
 	{
 		glfwPollEvents();
@@ -196,6 +204,12 @@ int main()
 		glUniform1i(glGetUniformLocation(shaderId, "assigned_texture2"), 1);
 
 		glUniform1f(glGetUniformLocation(shaderId, "blending"), g_blending);
+
+		const auto time = glfwGetTime();
+		glm::mat4 translation;
+		translation = glm::rotate(translation, glm::radians((float)cos(time) * 360), glm::vec3(0.0, 0.0, 1.0));
+		translation = glm::scale(translation, glm::vec3(sin(time), sin(time), sin(time)));
+		glUniformMatrix4fv(glGetUniformLocation(shaderId, "transform"), 1, GL_FALSE, glm::value_ptr(translation));
 
 		shader.Use();
 
