@@ -15,13 +15,16 @@
 #include <string>
 #include <SOIL.h>
 #include <algorithm>
+
 #include "Shader.h"
+#include "InputProcessor.h"
 
 //
 // Globals
 //
 
 GLfloat g_blending = 0.2f;
+InputProcessor & g_InputProcessor = InputProcessor::GetInstance();
 
 glm::mat4 view;
 glm::mat4 projection;
@@ -45,6 +48,33 @@ const float FAR_CLIP  = 100.0f;
 //
 // Logic
 //
+
+void InitInputProcessor(GLFWwindow * window) // reconsider the function
+{
+	g_InputProcessor.SetAction(GLFW_KEY_W, [&]() {
+		view = glm::rotate(view, -ROTATION_DELTA, glm::vec3(1.0f, 0.0f, 0.0f));
+	});
+	g_InputProcessor.SetAction(GLFW_KEY_S, [&]() {
+		view = glm::rotate(view, ROTATION_DELTA, glm::vec3(1.0f, 0.0f, 0.0f));
+	});
+	g_InputProcessor.SetAction(GLFW_KEY_A, [&]() {
+		view = glm::rotate(view, -ROTATION_DELTA, glm::vec3(0.0f, 1.0f, 0.0f));
+	});
+	g_InputProcessor.SetAction(GLFW_KEY_D, [&]() {
+		view = glm::rotate(view, ROTATION_DELTA, glm::vec3(0.0f, 1.0f, 0.0f));
+	});
+	g_InputProcessor.SetAction(GLFW_KEY_UP, [&]() {
+		g_blending += BLENDING_DELTA;
+		g_blending = std::min(g_blending, BLENDING_MAX);
+	});
+	g_InputProcessor.SetAction(GLFW_KEY_DOWN, [&]() {
+		g_blending -= BLENDING_DELTA;
+		g_blending = std::max(g_blending, BLENDING_MIN);
+	});
+	g_InputProcessor.SetAction(GLFW_KEY_ESCAPE, [&]() {
+		glfwSetWindowShouldClose(window, GL_TRUE);
+	});
+}
 
 void KeyCallback(GLFWwindow * window, int key, int scancode, int action, int mode)
 {
@@ -118,7 +148,15 @@ int main()
 	glfwGetFramebufferSize(window, &width, &height);
 	glViewport(0, 0, width, height);
 
-	glfwSetKeyCallback(window, KeyCallback);
+	InitInputProcessor(window);
+	glfwSetWindowUserPointer(window, &g_InputProcessor); // what am i doing
+	auto func = [](GLFWwindow * window, int, int, int)
+	{
+		static_cast<InputProcessor *>(glfwGetWindowUserPointer(window))->mouseButtonPressed();
+	};
+	glfwSetMouseButtonCallback(window, func);
+
+	glfwSetKeyCallback(window, g_InputProcessor.ProcessInput);
 
 	const Shader shader(
 		"../Shaders/vertex.vs",
