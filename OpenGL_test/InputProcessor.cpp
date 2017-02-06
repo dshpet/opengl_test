@@ -14,9 +14,3 @@ void InputProcessor::ProcessInput(GLFWwindow * _window, int _key, int _scancode,
 
 	intance.m_KeyActionMap[_key]();
 }
-
-void InputProcessor::mouseButtonPressed()
-{
-	auto fuck = 0;
-	return;
-}

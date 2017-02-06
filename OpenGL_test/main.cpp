@@ -51,6 +51,10 @@ const float FAR_CLIP  = 100.0f;
 
 void InitInputProcessor(GLFWwindow * window) // reconsider the function
 {
+	// was
+	// if (key == GLFW_KEY_W && action == GLFW_PRESS)
+	// TODO also use action and reformat initialization. Lambdas look kinda big
+
 	g_InputProcessor.SetAction(GLFW_KEY_W, [&]() {
 		view = glm::rotate(view, -ROTATION_DELTA, glm::vec3(1.0f, 0.0f, 0.0f));
 	});
@@ -74,47 +78,6 @@ void InitInputProcessor(GLFWwindow * window) // reconsider the function
 	g_InputProcessor.SetAction(GLFW_KEY_ESCAPE, [&]() {
 		glfwSetWindowShouldClose(window, GL_TRUE);
 	});
-}
-
-void KeyCallback(GLFWwindow * window, int key, int scancode, int action, int mode)
-{
-	// it doesnt look good, maybe consider moving it away
-	if (key == GLFW_KEY_W && action == GLFW_PRESS)
-	{
-		view = glm::rotate(view, -ROTATION_DELTA, glm::vec3(1.0f, 0.0f, 0.0f));
-	}
-	else
-	if (key == GLFW_KEY_S && action == GLFW_PRESS)
-	{
-		view = glm::rotate(view, ROTATION_DELTA, glm::vec3(1.0f, 0.0f, 0.0f));
-	}
-	else
-	if (key == GLFW_KEY_A && action == GLFW_PRESS)
-	{
-		view = glm::rotate(view, -ROTATION_DELTA, glm::vec3(0.0f, 1.0f, 0.0f));
-	}
-	else
-	if (key == GLFW_KEY_D && action == GLFW_PRESS)
-	{
-		view = glm::rotate(view, ROTATION_DELTA, glm::vec3(0.0f, 1.0f, 0.0f));
-	}
-	else
-	if (key == GLFW_KEY_UP && action == GLFW_PRESS)
-	{ 
-		g_blending += BLENDING_DELTA;
-		g_blending = std::min(g_blending, BLENDING_MAX);
-	}
-	else
-	if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
-	{
-		g_blending -= BLENDING_DELTA;
-		g_blending = std::max(g_blending, BLENDING_MIN);
-	}
-	else
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-	{
-		glfwSetWindowShouldClose(window, GL_TRUE);
-	}
 }
 
 int main()
@@ -149,13 +112,6 @@ int main()
 	glViewport(0, 0, width, height);
 
 	InitInputProcessor(window);
-	glfwSetWindowUserPointer(window, &g_InputProcessor); // what am i doing
-	auto func = [](GLFWwindow * window, int, int, int)
-	{
-		static_cast<InputProcessor *>(glfwGetWindowUserPointer(window))->mouseButtonPressed();
-	};
-	glfwSetMouseButtonCallback(window, func);
-
 	glfwSetKeyCallback(window, g_InputProcessor.ProcessInput);
 
 	const Shader shader(
