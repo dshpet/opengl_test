@@ -23,6 +23,9 @@
 
 GLfloat g_blending = 0.2f;
 
+glm::mat4 view;
+glm::mat4 projection;
+
 //
 // Constants
 //
@@ -34,6 +37,8 @@ const GLfloat BLENDING_DELTA =  0.05f;
 const GLfloat BLENDING_MIN	 = -1.0f;
 const GLfloat BLENDING_MAX   =  1.0f;
 
+const GLfloat ROTATION_DELTA = 0.05f;
+
 const float NEAR_CLIP = 0.1f;
 const float FAR_CLIP  = 100.0f;
 
@@ -43,15 +48,37 @@ const float FAR_CLIP  = 100.0f;
 
 void KeyCallback(GLFWwindow * window, int key, int scancode, int action, int mode)
 {
+	// it doesnt look good, maybe consider moving it away
+	if (key == GLFW_KEY_W && action == GLFW_PRESS)
+	{
+		view = glm::rotate(view, -ROTATION_DELTA, glm::vec3(1.0f, 0.0f, 0.0f));
+	}
+	else
+	if (key == GLFW_KEY_S && action == GLFW_PRESS)
+	{
+		view = glm::rotate(view, ROTATION_DELTA, glm::vec3(1.0f, 0.0f, 0.0f));
+	}
+	else
+	if (key == GLFW_KEY_A && action == GLFW_PRESS)
+	{
+		view = glm::rotate(view, -ROTATION_DELTA, glm::vec3(0.0f, 1.0f, 0.0f));
+	}
+	else
+	if (key == GLFW_KEY_D && action == GLFW_PRESS)
+	{
+		view = glm::rotate(view, ROTATION_DELTA, glm::vec3(0.0f, 1.0f, 0.0f));
+	}
+	else
 	if (key == GLFW_KEY_UP && action == GLFW_PRESS)
 	{ 
 		g_blending += BLENDING_DELTA;
-		g_blending = std::min(g_blending, BLENDING_MAX); // bound values
+		g_blending = std::min(g_blending, BLENDING_MAX);
 	}
+	else
 	if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
 	{
 		g_blending -= BLENDING_DELTA;
-		g_blending = std::max(g_blending, BLENDING_MIN); // bound values
+		g_blending = std::max(g_blending, BLENDING_MIN);
 	}
 	else
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
@@ -141,10 +168,19 @@ int main()
       -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
       -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
-	//const GLuint indices[] = {
-	//	0, 1, 3,
-	//	1, 2, 3
-	//};
+
+	glm::vec3 cubePositions[] = {
+	  glm::vec3( 0.0f,  0.0f,  0.0f), 
+	  glm::vec3( 2.0f,  5.0f, -15.0f), 
+	  glm::vec3(-1.5f, -2.2f, -2.5f),  
+	  glm::vec3(-3.8f, -2.0f, -12.3f),  
+	  glm::vec3( 2.4f, -0.4f, -3.5f),  
+	  glm::vec3(-1.7f,  3.0f, -7.5f),  
+	  glm::vec3( 1.3f, -2.0f, -2.5f),  
+	  glm::vec3( 1.5f,  2.0f, -2.5f), 
+	  glm::vec3( 1.5f,  0.2f, -1.5f), 
+	  glm::vec3(-1.3f,  1.0f, -1.5f)  
+	};
 
 	GLuint VAO;
 	glGenVertexArrays(1, &VAO);
@@ -155,18 +191,9 @@ int main()
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 	
-	//GLuint EBO;
-	//glGenBuffers(1, &EBO);
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
 	// Vertex pos
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid *)nullptr);
 	glEnableVertexAttribArray(0);
-
-	// Vertex color
-	//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid *)(3 * sizeof(GLfloat)));
-	//glEnableVertexAttribArray(1);
 
 	// texture
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid *)(3 * sizeof(GLfloat)));
@@ -220,25 +247,21 @@ int main()
 
 	SOIL_free_image_data(img);
 	glBindTexture(GL_TEXTURE_2D, 0);
-
-
-	glm::mat4 model;
-	model = glm::rotate(model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-
-	glm::mat4 view;
+	
 	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-
-	glm::mat4 projection;
+	
 	const glm::mat4 ortographic = glm::ortho(0.0f, (float)WIDTH, (float)HEIGHT, 0.0f, NEAR_CLIP, FAR_CLIP);
 	const glm::mat4 perspective = glm::perspective(45.0f, (float)WIDTH / (float)HEIGHT, NEAR_CLIP, FAR_CLIP);
 	projection = perspective;
+
+	glEnable(GL_DEPTH_TEST);
 
 	while (!glfwWindowShouldClose(window))
 	{
 		glfwPollEvents();
 
 		glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		const auto time = glfwGetTime();
 		const GLuint shaderId = shader.GetProgramId();
@@ -253,15 +276,26 @@ int main()
 
 		glUniform1f(glGetUniformLocation(shaderId, "blending"), g_blending);
 
-		model = glm::rotate(model, (GLfloat)sin(time) * 0.01f, glm::vec3(0.5f, 1.0f, 0.0f));
-		glUniformMatrix4fv(glGetUniformLocation(shaderId, "model"), 1, GL_FALSE, glm::value_ptr(model));
 		glUniformMatrix4fv(glGetUniformLocation(shaderId, "view"), 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(glGetUniformLocation(shaderId, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
 		shader.Use();
 
 		glBindVertexArray(VAO);		
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		for (const auto & pos : cubePositions)
+		{
+			glm::mat4 model;
+			model = glm::translate(model, pos);
+			const GLfloat angle = 1.0f * sin(time);
+			const GLfloat x = sin(time);
+			const GLfloat y = cos(time);
+			const GLfloat z = sin(time) * cos(time);
+			model = glm::rotate(model, angle, glm::vec3(x, y, z));
+			glUniformMatrix4fv(glGetUniformLocation(shaderId, "model"), 1, GL_FALSE, glm::value_ptr(model));
+
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
+
 		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -271,7 +305,6 @@ int main()
 	// shutdown
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
-	//glDeleteBuffers(1, &EBO);
 
 	glfwTerminate();
 
