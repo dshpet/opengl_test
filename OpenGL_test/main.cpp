@@ -280,10 +280,10 @@ int main()
 		{
 			glm::mat4 model;
 			model = glm::translate(model, pos);
-			const GLfloat angle = 1.0f * sin(time);
-			const GLfloat x = sin(time);
-			const GLfloat y = cos(time);
-			const GLfloat z = sin(time) * cos(time);
+			const auto angle = GLfloat(1.0f * sin(time));
+			const auto x = GLfloat(sin(time));
+			const auto y = GLfloat(cos(time));
+			const auto z = GLfloat(sin(time) * cos(time));
 			model = glm::rotate(model, angle, glm::vec3(x, y, z));
 			glUniformMatrix4fv(glGetUniformLocation(shaderId, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
