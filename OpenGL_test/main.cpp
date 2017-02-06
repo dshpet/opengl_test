@@ -34,6 +34,9 @@ const GLfloat BLENDING_DELTA =  0.05f;
 const GLfloat BLENDING_MIN	 = -1.0f;
 const GLfloat BLENDING_MAX   =  1.0f;
 
+const float NEAR_CLIP = 0.1f;
+const float FAR_CLIP  = 100.0f;
+
 //
 // Logic
 //
@@ -182,9 +185,17 @@ int main()
 	SOIL_free_image_data(img);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	// transformation
-	//glm::mat4 translation;
-	//translation = glm::translate(translation, glm::vec3(0.0f, 0.0f, 0.0f));
+
+	glm::mat4 model;
+	model = glm::rotate(model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+
+	glm::mat4 view;
+	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+
+	glm::mat4 projection;
+	const glm::mat4 ortographic = glm::ortho(0.0f, (float)WIDTH, (float)HEIGHT, 0.0f, NEAR_CLIP, FAR_CLIP);
+	const glm::mat4 perspective = glm::perspective(45.0f, (float)WIDTH / (float)HEIGHT, NEAR_CLIP, FAR_CLIP);
+	projection = perspective;
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -205,16 +216,13 @@ int main()
 
 		glUniform1f(glGetUniformLocation(shaderId, "blending"), g_blending);
 
-		const auto time = glfwGetTime();
-		glm::mat4 translation;
-		translation = glm::rotate(translation, glm::radians((float)cos(time) * 360), glm::vec3(0.0, 0.0, 1.0));
-		translation = glm::scale(translation, glm::vec3(sin(time), sin(time), sin(time)));
-		glUniformMatrix4fv(glGetUniformLocation(shaderId, "transform"), 1, GL_FALSE, glm::value_ptr(translation));
+		glUniformMatrix4fv(glGetUniformLocation(shaderId, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		glUniformMatrix4fv(glGetUniformLocation(shaderId, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(glGetUniformLocation(shaderId, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
 		shader.Use();
 
 		glBindVertexArray(VAO);		
-		//glDrawArrays(GL_TRIANGLES, 0, 6);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_2D, 0);
