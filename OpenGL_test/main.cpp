@@ -78,6 +78,18 @@ void InitInputProcessor(GLFWwindow * window) // reconsider the function
 			}
 		},
 		{
+			InputInfo{ GLFW_KEY_Q , 0, GLFW_PRESS, 0 },
+			[&]() {
+				view = glm::translate(view, glm::vec3(0.0f, 0.0f, 1.0f));
+			}
+		},
+		{
+			InputInfo{ GLFW_KEY_E , 0, GLFW_PRESS, 0 },
+			[&]() {
+				view = glm::translate(view, glm::vec3(0.0f, 0.0f, -1.0f));
+			}
+		},
+		{
 			InputInfo{ GLFW_KEY_UP , 0, GLFW_PRESS, 0 },
 			[&]() {
 				g_blending += BLENDING_DELTA;
@@ -264,7 +276,7 @@ int main()
 	SOIL_free_image_data(img);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	
-	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -5.0f));
 	
 	const glm::mat4 ortographic = glm::ortho(0.0f, (float)WIDTH, (float)HEIGHT, 0.0f, NEAR_CLIP, FAR_CLIP);
 	const glm::mat4 perspective = glm::perspective(45.0f, (float)WIDTH / (float)HEIGHT, NEAR_CLIP, FAR_CLIP);
