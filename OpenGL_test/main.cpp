@@ -51,33 +51,55 @@ const float FAR_CLIP  = 100.0f;
 
 void InitInputProcessor(GLFWwindow * window) // reconsider the function
 {
-	// was
-	// if (key == GLFW_KEY_W && action == GLFW_PRESS)
-	// TODO also use action and reformat initialization. Lambdas look kinda big
+	// still looks bad
+	std::map<InputInfo, std::function<void()>> init = {
+		{ 
+			InputInfo { GLFW_KEY_W , 0, GLFW_PRESS, 0 },
+			[&]() {
+				view = glm::rotate(view, -ROTATION_DELTA, glm::vec3(1.0f, 0.0f, 0.0f));
+			}
+		},
+		{
+			InputInfo{ GLFW_KEY_S , 0, GLFW_PRESS, 0 },
+			[&]() {
+				view = glm::rotate(view, ROTATION_DELTA, glm::vec3(1.0f, 0.0f, 0.0f));
+			}
+		},
+		{
+			InputInfo{ GLFW_KEY_A , 0, GLFW_PRESS, 0 },
+			[&]() {
+				view = glm::rotate(view, -ROTATION_DELTA, glm::vec3(0.0f, 1.0f, 0.0f)); 
+			}
+		},
+		{
+			InputInfo{ GLFW_KEY_D , 0, GLFW_PRESS, 0 },
+			[&]() {
+				view = glm::rotate(view, ROTATION_DELTA, glm::vec3(0.0f, 1.0f, 0.0f));
+			}
+		},
+		{
+			InputInfo{ GLFW_KEY_UP , 0, GLFW_PRESS, 0 },
+			[&]() {
+				g_blending += BLENDING_DELTA;
+				g_blending = std::min(g_blending, BLENDING_MAX);
+			}
+		},
+		{
+			InputInfo{ GLFW_KEY_DOWN , 0, GLFW_PRESS, 0 },
+			[&]() {
+				g_blending -= BLENDING_DELTA;
+				g_blending = std::max(g_blending, BLENDING_MIN);
+			}
+		},
+		{
+			InputInfo{ GLFW_KEY_ESCAPE , 0, GLFW_PRESS, 0 },
+			[&]() {
+				glfwSetWindowShouldClose(window, GL_TRUE);
+			}
+		},
+	};
 
-	g_InputProcessor.SetAction(GLFW_KEY_W, [&]() {
-		view = glm::rotate(view, -ROTATION_DELTA, glm::vec3(1.0f, 0.0f, 0.0f));
-	});
-	g_InputProcessor.SetAction(GLFW_KEY_S, [&]() {
-		view = glm::rotate(view, ROTATION_DELTA, glm::vec3(1.0f, 0.0f, 0.0f));
-	});
-	g_InputProcessor.SetAction(GLFW_KEY_A, [&]() {
-		view = glm::rotate(view, -ROTATION_DELTA, glm::vec3(0.0f, 1.0f, 0.0f));
-	});
-	g_InputProcessor.SetAction(GLFW_KEY_D, [&]() {
-		view = glm::rotate(view, ROTATION_DELTA, glm::vec3(0.0f, 1.0f, 0.0f));
-	});
-	g_InputProcessor.SetAction(GLFW_KEY_UP, [&]() {
-		g_blending += BLENDING_DELTA;
-		g_blending = std::min(g_blending, BLENDING_MAX);
-	});
-	g_InputProcessor.SetAction(GLFW_KEY_DOWN, [&]() {
-		g_blending -= BLENDING_DELTA;
-		g_blending = std::max(g_blending, BLENDING_MIN);
-	});
-	g_InputProcessor.SetAction(GLFW_KEY_ESCAPE, [&]() {
-		glfwSetWindowShouldClose(window, GL_TRUE);
-	});
+	g_InputProcessor.SetActions(init);
 }
 
 int main()
