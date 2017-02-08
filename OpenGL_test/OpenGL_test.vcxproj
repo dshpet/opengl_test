@@ -155,6 +155,8 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="InputAction.h" />
+    <ClInclude Include="InputInfo.h" />
     <ClInclude Include="InputProcessor.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Shader.h" />

@@ -1,34 +1,15 @@
 #pragma once
 
 #include <map>
-#include <functional>
 #include <GLFW/glfw3.h>
-
-struct InputInfo
-{
-	int key;
-	int scancode;
-	int action;
-	int mode;
-
-	InputInfo(int _key, int _scancode, int _action, int _mode)
-	{
-		key = _key;
-		scancode = _scancode;
-		action = _action;
-		mode = _mode;
-	}
-
-	bool operator< (const InputInfo &o) const
-	{
-		return key < o.key;
-	}
-};
+#include "InputAction.h"
+#include "InputInfo.h"
 
 class InputProcessor
 {
 private:
-	std::map<InputInfo, std::function<void()>> m_KeyActionMap;
+	std::map<InputInfo, InputAction> m_KeyActionMap;
+	InputInfo m_keys[1024];
 
 private:
 	InputProcessor() = default;
@@ -47,8 +28,9 @@ public:
 
 	// hack for usage in GLFW callback
 	static void ProcessInput(GLFWwindow * _window, int _key, int _scancode, int _action, int _mode);
+	void DispatchInput();
 	
-	void SetAction(const InputInfo _key, std::function<void()> _action);
+	void SetAction(const InputInfo _key, const InputAction & _action);
 	void SetActions(decltype(m_KeyActionMap) & _init);
 };
 

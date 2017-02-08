@@ -1,8 +1,8 @@
 #include "InputProcessor.h"
 
-void InputProcessor::SetAction(const InputInfo _key, std::function<void()> _action)
+void InputProcessor::SetAction(const InputInfo _key, const InputAction & _action)
 {
-	m_KeyActionMap[_key] = _action;
+	m_KeyActionMap[_key] = std::move(_action); // is move correct? Maybe its better to copy so memory is continuous
 }
 
 void InputProcessor::SetActions(decltype(m_KeyActionMap) & _init)
@@ -12,13 +12,39 @@ void InputProcessor::SetActions(decltype(m_KeyActionMap) & _init)
 
 void InputProcessor::ProcessInput(GLFWwindow * _window, int _key, int _scancode, int _action, int _mode)
 {
+	printf("key: %i, action: %i \n", _key, _action);
 	const InputInfo info{ _key, _scancode, _action,  _mode};
-	auto & intance = GetInstance();
 
-	const auto iter = intance.m_KeyActionMap.find(info);
-	if (iter == intance.m_KeyActionMap.end())
-		return;
+	auto & instance = GetInstance();
 
-	// invoke function
-	iter->second();
+	// track keys
+	instance.m_keys[_key] = info;
+}
+
+void InputProcessor::DispatchInput()
+{
+	for (const auto & it : m_KeyActionMap)
+	{
+		// todo rename
+		const auto & savedInputInfo = it.first;
+		const auto & savedAction = it.second;
+
+		const auto & pressedKeyInfo = m_keys[savedInputInfo.key];
+
+		// not in the list
+		if (pressedKeyInfo.key != savedInputInfo.key)
+			continue;
+
+		// todo think about refactoring
+		if (pressedKeyInfo == savedInputInfo ||
+			pressedKeyInfo.action == GLFW_REPEAT && savedAction.IsRepeated())
+		{
+			printf("dispatched     key: %i, action: %i \n", savedInputInfo.key, savedInputInfo.action);
+			savedAction.Execute();
+
+			// erase from the queue
+			if (!savedAction.IsRepeated())
+				m_keys[savedInputInfo.key] = InputInfo();
+		}
+	}
 }

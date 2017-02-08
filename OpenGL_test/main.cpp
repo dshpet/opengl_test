@@ -18,6 +18,8 @@
 
 #include "Shader.h"
 #include "InputProcessor.h"
+#include "InputAction.h"
+#include "InputInfo.h"
 
 //
 // Globals
@@ -28,6 +30,16 @@ InputProcessor & g_InputProcessor = InputProcessor::GetInstance();
 
 glm::mat4 view;
 glm::mat4 projection;
+
+// camera
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
+glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
 
 //
 // Constants
@@ -41,6 +53,7 @@ const GLfloat BLENDING_MIN	 = -1.0f;
 const GLfloat BLENDING_MAX   =  1.0f;
 
 const GLfloat ROTATION_DELTA = 0.05f;
+const GLfloat CAMERA_SPEED   = 0.05f;
 
 const float NEAR_CLIP = 0.1f;
 const float FAR_CLIP  = 100.0f;
@@ -52,61 +65,88 @@ const float FAR_CLIP  = 100.0f;
 void InitInputProcessor(GLFWwindow * window) // reconsider the function
 {
 	// still looks bad
-	std::map<InputInfo, std::function<void()>> init = {
-		{ 
+	std::map<InputInfo, InputAction> init = {
+		{
 			InputInfo { GLFW_KEY_W , 0, GLFW_PRESS, 0 },
-			[&]() {
-				view = glm::rotate(view, -ROTATION_DELTA, glm::vec3(1.0f, 0.0f, 0.0f));
+			InputAction {
+				[&]() {
+					cameraPos += CAMERA_SPEED * cameraFront;
+				},
+				true
 			}
 		},
 		{
 			InputInfo{ GLFW_KEY_S , 0, GLFW_PRESS, 0 },
-			[&]() {
-				view = glm::rotate(view, ROTATION_DELTA, glm::vec3(1.0f, 0.0f, 0.0f));
+			InputAction {
+				[&]() {
+					cameraPos -= CAMERA_SPEED * cameraFront;
+				},
+				true
 			}
 		},
 		{
 			InputInfo{ GLFW_KEY_A , 0, GLFW_PRESS, 0 },
-			[&]() {
-				view = glm::rotate(view, -ROTATION_DELTA, glm::vec3(0.0f, 1.0f, 0.0f)); 
+			InputAction {
+				[&]() {
+					cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * CAMERA_SPEED;
+				},
+				true
 			}
 		},
 		{
 			InputInfo{ GLFW_KEY_D , 0, GLFW_PRESS, 0 },
-			[&]() {
-				view = glm::rotate(view, ROTATION_DELTA, glm::vec3(0.0f, 1.0f, 0.0f));
+			InputAction {
+				[&]() {
+					cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * CAMERA_SPEED;
+				},
+				true
 			}
 		},
 		{
 			InputInfo{ GLFW_KEY_Q , 0, GLFW_PRESS, 0 },
-			[&]() {
-				view = glm::translate(view, glm::vec3(0.0f, 0.0f, 1.0f));
+			InputAction {
+				[&]() {
+					//cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * CAMERA_SPEED;
+				},
+				true
 			}
 		},
 		{
 			InputInfo{ GLFW_KEY_E , 0, GLFW_PRESS, 0 },
-			[&]() {
-				view = glm::translate(view, glm::vec3(0.0f, 0.0f, -1.0f));
+			InputAction {
+				[&]() {
+					//cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * CAMERA_SPEED;
+				},
+				true
 			}
 		},
 		{
 			InputInfo{ GLFW_KEY_UP , 0, GLFW_PRESS, 0 },
-			[&]() {
-				g_blending += BLENDING_DELTA;
-				g_blending = std::min(g_blending, BLENDING_MAX);
+			InputAction {
+				[&]() {
+					g_blending += BLENDING_DELTA;
+					g_blending = std::min(g_blending, BLENDING_MAX);
+				},
+				false
 			}
 		},
 		{
 			InputInfo{ GLFW_KEY_DOWN , 0, GLFW_PRESS, 0 },
-			[&]() {
-				g_blending -= BLENDING_DELTA;
-				g_blending = std::max(g_blending, BLENDING_MIN);
+			InputAction {
+				[&]() {
+					g_blending -= BLENDING_DELTA;
+					g_blending = std::max(g_blending, BLENDING_MIN);
+				},
+				false
 			}
 		},
 		{
 			InputInfo{ GLFW_KEY_ESCAPE , 0, GLFW_PRESS, 0 },
-			[&]() {
-				glfwSetWindowShouldClose(window, GL_TRUE);
+			InputAction {
+				[&]() {
+					glfwSetWindowShouldClose(window, GL_TRUE);
+				},
+				false
 			}
 		},
 	};
@@ -276,29 +316,17 @@ int main()
 	SOIL_free_image_data(img);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	
-	view = glm::lookAt(
-		glm::vec3(0.0f, 0.0f, 3.0f),
-		glm::vec3(0.0f, 0.0f, 3.0f),
-		glm::vec3(0.0f, 1.0f, 0.0f)
-	);
-	
 	const glm::mat4 ortographic = glm::ortho(0.0f, (float)WIDTH, (float)HEIGHT, 0.0f, NEAR_CLIP, FAR_CLIP);
 	const glm::mat4 perspective = glm::perspective(45.0f, (float)WIDTH / (float)HEIGHT, NEAR_CLIP, FAR_CLIP);
 	projection = perspective;
-
-	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-	glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
-	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-	glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
-	glm::vec3 cameraUp = glm::normalize(glm::cross(cameraDirection, cameraRight));
-
 
 	glEnable(GL_DEPTH_TEST);
 
 	while (!glfwWindowShouldClose(window))
 	{
 		glfwPollEvents();
+
+		g_InputProcessor.DispatchInput();
 
 		glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -319,7 +347,8 @@ int main()
 		GLfloat radius = 10.0f;
 		GLfloat camX = sin(time) * radius;
 		GLfloat camZ = cos(time) * radius;
-		view = glm::lookAt(glm::vec3(camX, 0.0, camZ), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+
+		view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
 		glUniformMatrix4fv(glGetUniformLocation(shaderId, "view"), 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(glGetUniformLocation(shaderId, "projection"), 1, GL_FALSE, glm::value_ptr(projection));

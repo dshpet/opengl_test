@@ -10,7 +10,9 @@
 
 class Shader
 {
+//
 // Construction
+//
 public:
 	explicit Shader(
 		const GLchar * _vertexPath,
@@ -87,14 +89,18 @@ public:
 		glDeleteShader(fragment);
 	};
 
+//
 // Interface
+//
 public:
 	void Use() const
 	{
 		glUseProgram(GetProgramId());
 	}
 
+//
 // Members
+//
 private:	
 	GLuint m_ProgramId;
 
