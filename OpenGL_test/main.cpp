@@ -276,11 +276,23 @@ int main()
 	SOIL_free_image_data(img);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	
-	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -5.0f));
+	view = glm::lookAt(
+		glm::vec3(0.0f, 0.0f, 3.0f),
+		glm::vec3(0.0f, 0.0f, 3.0f),
+		glm::vec3(0.0f, 1.0f, 0.0f)
+	);
 	
 	const glm::mat4 ortographic = glm::ortho(0.0f, (float)WIDTH, (float)HEIGHT, 0.0f, NEAR_CLIP, FAR_CLIP);
 	const glm::mat4 perspective = glm::perspective(45.0f, (float)WIDTH / (float)HEIGHT, NEAR_CLIP, FAR_CLIP);
 	projection = perspective;
+
+	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+	glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
+	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+	glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
+	glm::vec3 cameraUp = glm::normalize(glm::cross(cameraDirection, cameraRight));
+
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -303,6 +315,11 @@ int main()
 		glUniform1i(glGetUniformLocation(shaderId, "assigned_texture2"), 1);
 
 		glUniform1f(glGetUniformLocation(shaderId, "blending"), g_blending);
+
+		GLfloat radius = 10.0f;
+		GLfloat camX = sin(time) * radius;
+		GLfloat camZ = cos(time) * radius;
+		view = glm::lookAt(glm::vec3(camX, 0.0, camZ), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
 
 		glUniformMatrix4fv(glGetUniformLocation(shaderId, "view"), 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(glGetUniformLocation(shaderId, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
