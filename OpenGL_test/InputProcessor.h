@@ -32,5 +32,8 @@ public:
 	
 	void SetAction(const InputInfo _key, const InputAction & _action);
 	void SetActions(decltype(m_KeyActionMap) & _init);
+
+	// not really needed and should be some redone in a more convinient way
+	static const char * const logname() { return "[InputProcessor]"; }
 };
 

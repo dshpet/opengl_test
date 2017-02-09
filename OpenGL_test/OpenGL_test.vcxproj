@@ -153,11 +153,13 @@
     <ClCompile Include="copypaste_test.cpp" />
     <ClCompile Include="InputProcessor.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Profiler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="InputAction.h" />
     <ClInclude Include="InputInfo.h" />
     <ClInclude Include="InputProcessor.h" />
+    <ClInclude Include="Profiler.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Shader.h" />
   </ItemGroup>

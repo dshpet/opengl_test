@@ -12,7 +12,9 @@ void InputProcessor::SetActions(decltype(m_KeyActionMap) & _init)
 
 void InputProcessor::ProcessInput(GLFWwindow * _window, int _key, int _scancode, int _action, int _mode)
 {
-	printf("key: %i, action: %i \n", _key, _action);
+	//const auto & name = logname();
+	//printf("%s key: %i, action: %i \n", name, _key, _action);
+
 	const InputInfo info{ _key, _scancode, _action,  _mode};
 
 	auto & instance = GetInstance();
@@ -23,6 +25,8 @@ void InputProcessor::ProcessInput(GLFWwindow * _window, int _key, int _scancode,
 
 void InputProcessor::DispatchInput()
 {
+	const auto & name = logname();
+
 	for (const auto & it : m_KeyActionMap)
 	{
 		// todo rename
@@ -39,7 +43,7 @@ void InputProcessor::DispatchInput()
 		if (pressedKeyInfo == savedInputInfo ||
 			pressedKeyInfo.action == GLFW_REPEAT && savedAction.IsRepeated())
 		{
-			printf("dispatched     key: %i, action: %i \n", savedInputInfo.key, savedInputInfo.action);
+			//printf("%s dispatched     key: %i, action: %i \n", name, savedInputInfo.key, savedInputInfo.action);
 			savedAction.Execute();
 
 			// erase from the queue

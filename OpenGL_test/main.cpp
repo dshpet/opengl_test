@@ -20,6 +20,7 @@
 #include "InputProcessor.h"
 #include "InputAction.h"
 #include "InputInfo.h"
+#include "Profiler.h"
 
 //
 // Globals
@@ -27,6 +28,7 @@
 
 GLfloat g_blending = 0.2f;
 InputProcessor & g_InputProcessor = InputProcessor::GetInstance();
+Profiler g_Profiler;
 
 glm::mat4 view;
 glm::mat4 projection;
@@ -145,6 +147,15 @@ void InitInputProcessor(GLFWwindow * window) // reconsider the function
 			InputAction {
 				[&]() {
 					glfwSetWindowShouldClose(window, GL_TRUE);
+				},
+				false
+			}
+		},
+		{
+			InputInfo{ GLFW_KEY_F1 , 0, GLFW_PRESS, 0 },
+			InputAction{
+				[&]() {
+					g_Profiler.PrintInfo();
 				},
 				false
 			}
@@ -324,14 +335,17 @@ int main()
 
 	while (!glfwWindowShouldClose(window))
 	{
+		g_Profiler.OnFrameBegin();
+
 		glfwPollEvents();
 
 		g_InputProcessor.DispatchInput();
 
+		const auto time = glfwGetTime();
+
 		glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		const auto time = glfwGetTime();
 		const GLuint shaderId = shader.GetProgramId();
 
 		glActiveTexture(GL_TEXTURE0);
@@ -374,6 +388,8 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 		glfwSwapBuffers(window);
+
+		g_Profiler.OnFrameEnd();
 	}
 	
 	// shutdown
