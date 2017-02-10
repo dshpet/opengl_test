@@ -28,7 +28,7 @@ public:
 
 	// hack for usage in GLFW callback
 	static void ProcessInput(GLFWwindow * _window, int _key, int _scancode, int _action, int _mode);
-	void DispatchInput();
+	void DispatchInput(const double _timeDelta);
 	
 	void SetAction(const InputInfo _key, const InputAction & _action);
 	void SetActions(decltype(m_KeyActionMap) & _init);

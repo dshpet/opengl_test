@@ -55,7 +55,7 @@ const GLfloat BLENDING_MIN	 = -1.0f;
 const GLfloat BLENDING_MAX   =  1.0f;
 
 const GLfloat ROTATION_DELTA = 0.05f;
-const GLfloat CAMERA_SPEED   = 0.05f;
+const GLfloat CAMERA_SPEED   = 0.005f;
 
 const float NEAR_CLIP = 0.1f;
 const float FAR_CLIP  = 100.0f;
@@ -71,8 +71,8 @@ void InitInputProcessor(GLFWwindow * window) // reconsider the function
 		{
 			InputInfo { GLFW_KEY_W , 0, GLFW_PRESS, 0 },
 			InputAction {
-				[&]() {
-					cameraPos += CAMERA_SPEED * cameraFront;
+				[&](const double _timeDelta) {
+					cameraPos += (CAMERA_SPEED * GLfloat(_timeDelta)) * cameraFront;
 				},
 				true
 			}
@@ -80,8 +80,8 @@ void InitInputProcessor(GLFWwindow * window) // reconsider the function
 		{
 			InputInfo{ GLFW_KEY_S , 0, GLFW_PRESS, 0 },
 			InputAction {
-				[&]() {
-					cameraPos -= CAMERA_SPEED * cameraFront;
+				[&](const double _timeDelta) {
+					cameraPos -= (CAMERA_SPEED * GLfloat(_timeDelta)) * cameraFront;
 				},
 				true
 			}
@@ -89,8 +89,8 @@ void InitInputProcessor(GLFWwindow * window) // reconsider the function
 		{
 			InputInfo{ GLFW_KEY_A , 0, GLFW_PRESS, 0 },
 			InputAction {
-				[&]() {
-					cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * CAMERA_SPEED;
+				[&](const double _timeDelta) {
+					cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * (CAMERA_SPEED * GLfloat(_timeDelta));
 				},
 				true
 			}
@@ -98,8 +98,8 @@ void InitInputProcessor(GLFWwindow * window) // reconsider the function
 		{
 			InputInfo{ GLFW_KEY_D , 0, GLFW_PRESS, 0 },
 			InputAction {
-				[&]() {
-					cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * CAMERA_SPEED;
+				[&](const double _timeDelta) {
+					cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * (CAMERA_SPEED * GLfloat(_timeDelta));
 				},
 				true
 			}
@@ -107,7 +107,7 @@ void InitInputProcessor(GLFWwindow * window) // reconsider the function
 		{
 			InputInfo{ GLFW_KEY_Q , 0, GLFW_PRESS, 0 },
 			InputAction {
-				[&]() {
+				[&](const double _timeDelta) {
 					//cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * CAMERA_SPEED;
 				},
 				true
@@ -116,7 +116,7 @@ void InitInputProcessor(GLFWwindow * window) // reconsider the function
 		{
 			InputInfo{ GLFW_KEY_E , 0, GLFW_PRESS, 0 },
 			InputAction {
-				[&]() {
+				[&](const double _timeDelta) {
 					//cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * CAMERA_SPEED;
 				},
 				true
@@ -125,7 +125,7 @@ void InitInputProcessor(GLFWwindow * window) // reconsider the function
 		{
 			InputInfo{ GLFW_KEY_UP , 0, GLFW_PRESS, 0 },
 			InputAction {
-				[&]() {
+				[&](const double _timeDelta) {
 					g_blending += BLENDING_DELTA;
 					g_blending = std::min(g_blending, BLENDING_MAX);
 				},
@@ -135,7 +135,7 @@ void InitInputProcessor(GLFWwindow * window) // reconsider the function
 		{
 			InputInfo{ GLFW_KEY_DOWN , 0, GLFW_PRESS, 0 },
 			InputAction {
-				[&]() {
+				[&](const double _timeDelta) {
 					g_blending -= BLENDING_DELTA;
 					g_blending = std::max(g_blending, BLENDING_MIN);
 				},
@@ -145,7 +145,7 @@ void InitInputProcessor(GLFWwindow * window) // reconsider the function
 		{
 			InputInfo{ GLFW_KEY_ESCAPE , 0, GLFW_PRESS, 0 },
 			InputAction {
-				[&]() {
+				[window](const double _timeDelta) {
 					glfwSetWindowShouldClose(window, GL_TRUE);
 				},
 				false
@@ -154,7 +154,7 @@ void InitInputProcessor(GLFWwindow * window) // reconsider the function
 		{
 			InputInfo{ GLFW_KEY_F1 , 0, GLFW_PRESS, 0 },
 			InputAction{
-				[&]() {
+				[&](const double _timeDelta) {
 					g_Profiler.PrintInfo();
 				},
 				false
@@ -173,6 +173,8 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+
+	glfwSwapInterval(3);
 	
 	GLFWwindow * window = glfwCreateWindow(WIDTH, HEIGHT, "YAY", nullptr, nullptr);
 	if (window == nullptr)
@@ -336,10 +338,11 @@ int main()
 	while (!glfwWindowShouldClose(window))
 	{
 		g_Profiler.OnFrameBegin();
+		const auto & deltaTime = g_Profiler.GetLastFrameDelta();
 
 		glfwPollEvents();
 
-		g_InputProcessor.DispatchInput();
+		g_InputProcessor.DispatchInput(deltaTime);
 
 		const auto time = glfwGetTime();
 

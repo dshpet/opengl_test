@@ -34,8 +34,8 @@ public:
 			vertexShaderStream << vertexShaderFile.rdbuf();
 			fragmentShaderStream << fragmentShaderFile.rdbuf();
 
-			std::cout << vertexShaderStream.str() << std::endl;
-			std::cout << fragmentShaderStream.str() << std::endl;
+			//std::cout << vertexShaderStream.str() << std::endl;
+			//std::cout << fragmentShaderStream.str() << std::endl;
 
 			vertexShaderFile.close();
 			fragmentShaderFile.close();

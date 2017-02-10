@@ -23,7 +23,7 @@ void InputProcessor::ProcessInput(GLFWwindow * _window, int _key, int _scancode,
 	instance.m_keys[_key] = info;
 }
 
-void InputProcessor::DispatchInput()
+void InputProcessor::DispatchInput(const double _timeDelta)
 {
 	const auto & name = logname();
 
@@ -44,7 +44,7 @@ void InputProcessor::DispatchInput()
 			pressedKeyInfo.action == GLFW_REPEAT && savedAction.IsRepeated())
 		{
 			//printf("%s dispatched     key: %i, action: %i \n", name, savedInputInfo.key, savedInputInfo.action);
-			savedAction.Execute();
+			savedAction.Execute(_timeDelta);
 
 			// erase from the queue
 			if (!savedAction.IsRepeated())

@@ -8,7 +8,7 @@ class InputAction
 // Members
 //
 private:
-	std::function<void()> m_Action;
+	std::function<void(double)> m_Action;
 	bool m_isRepeated;
 
 //
@@ -36,8 +36,8 @@ public:
 		return m_isRepeated;
 	}
 
-	void Execute() const
+	void Execute(const double _timeDelta) const
 	{
-		m_Action();
+		m_Action(_timeDelta);
 	}
 };
