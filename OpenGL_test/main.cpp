@@ -200,6 +200,9 @@ int main()
 
 	InitInputProcessor(window);
 	glfwSetKeyCallback(window, g_InputProcessor.ProcessInput);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetCursorPosCallback(window, g_InputProcessor.ProcessMouseMovement);
+	glfwSetScrollCallback(window, g_InputProcessor.ProcessMouseScroll);
 
 	const Shader shader(
 		"../Shaders/vertex.vs",
@@ -328,10 +331,6 @@ int main()
 
 	SOIL_free_image_data(img);
 	glBindTexture(GL_TEXTURE_2D, 0);
-	
-	const glm::mat4 ortographic = glm::ortho(0.0f, (float)WIDTH, (float)HEIGHT, 0.0f, NEAR_CLIP, FAR_CLIP);
-	const glm::mat4 perspective = glm::perspective(45.0f, (float)WIDTH / (float)HEIGHT, NEAR_CLIP, FAR_CLIP);
-	projection = perspective;
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -365,7 +364,14 @@ int main()
 		GLfloat camX = sin(time) * radius;
 		GLfloat camZ = cos(time) * radius;
 
+		glm::vec3 front;
+		front.x = cos(glm::radians(g_InputProcessor.pitch)) * cos(glm::radians(g_InputProcessor.yaw));
+		front.y = sin(glm::radians(g_InputProcessor.pitch));
+		front.z = cos(glm::radians(g_InputProcessor.pitch)) * sin(glm::radians(g_InputProcessor.yaw));
+		cameraFront = glm::normalize(front);
+
 		view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+		projection = glm::perspective(g_InputProcessor.fov, (float)WIDTH / (float)HEIGHT, NEAR_CLIP, FAR_CLIP);
 
 		glUniformMatrix4fv(glGetUniformLocation(shaderId, "view"), 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(glGetUniformLocation(shaderId, "projection"), 1, GL_FALSE, glm::value_ptr(projection));

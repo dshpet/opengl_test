@@ -23,6 +23,45 @@ void InputProcessor::ProcessInput(GLFWwindow * _window, int _key, int _scancode,
 	instance.m_keys[_key] = info;
 }
 
+void InputProcessor::ProcessMouseMovement(GLFWwindow * _window, double _x, double _y)
+{
+	auto & instance = GetInstance();
+
+	if (instance.m_isFirstFocus)
+	{
+		instance.m_MouseX = _x;
+		instance.m_MouseY = _y;
+		instance.m_isFirstFocus = false;
+	}
+
+	GLfloat xOffset = _x - instance.m_MouseX;
+	GLfloat yOffset = instance.m_MouseY - _y; // Reversed since y-coordinates range from bottom to top
+
+	xOffset *= MOUSE_SENSITIVITY;
+	yOffset *= MOUSE_SENSITIVITY;
+
+	instance.m_MouseX = _x;
+	instance.m_MouseY = _y;
+
+	instance.yaw	+= xOffset;
+	instance.pitch  += yOffset;
+
+	// prevent gimbal lock
+	instance.yaw = std::fmin(instance.yaw, 89.0f);
+	instance.yaw = std::fmax(instance.yaw, -89.0f);
+	instance.pitch = std::fmin(instance.pitch, 89.0f);
+	instance.pitch = std::fmax(instance.pitch, -89.0f);
+}
+
+void InputProcessor::ProcessMouseScroll(GLFWwindow * _window, double _x, double _y)
+{
+	auto & instance = GetInstance();
+
+	instance.fov -= _y * MOUSE_SENSITIVITY;
+	instance.fov = std::fmax(instance.fov, 1.0f);
+	instance.fov = std::fmin(instance.fov, 45.0f);
+}
+
 void InputProcessor::DispatchInput(const double _timeDelta)
 {
 	const auto & name = logname();
