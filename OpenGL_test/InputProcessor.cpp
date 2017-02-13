@@ -10,6 +10,14 @@ void InputProcessor::SetActions(decltype(m_KeyActionMap) & _init)
 	m_KeyActionMap = std::move(_init); // is move correct?
 }
 
+const bool InputProcessor::RegisterInputObject(IInputable * _object)
+{
+	// maybe check for duplicates
+	m_Input.push_back(_object);
+
+	return true;
+}
+
 void InputProcessor::ProcessInput(GLFWwindow * _window, int _key, int _scancode, int _action, int _mode)
 {
 	//const auto & name = logname();
@@ -34,32 +42,30 @@ void InputProcessor::ProcessMouseMovement(GLFWwindow * _window, double _x, doubl
 		instance.m_isFirstFocus = false;
 	}
 
-	GLfloat xOffset = _x - instance.m_MouseX;
-	GLfloat yOffset = instance.m_MouseY - _y; // Reversed since y-coordinates range from bottom to top
+	instance.m_MouseDeltaX = _x - instance.m_MouseX;
+	instance.m_MouseDeltaY = instance.m_MouseY - _y; // Reversed since y-coordinates range from bottom to top
 
-	xOffset *= MOUSE_SENSITIVITY;
-	yOffset *= MOUSE_SENSITIVITY;
+	instance.m_MouseDeltaX *= MOUSE_SENSITIVITY;
+	instance.m_MouseDeltaY *= MOUSE_SENSITIVITY;
+
+	// move to dispatch
+	for (const auto & it : instance.m_Input)
+		it->ProcessMouse(instance.m_MouseDeltaX, instance.m_MouseDeltaY);
 
 	instance.m_MouseX = _x;
 	instance.m_MouseY = _y;
-
-	instance.yaw	+= xOffset;
-	instance.pitch  += yOffset;
-
-	// prevent gimbal lock
-	instance.yaw = std::fmin(instance.yaw, 89.0f);
-	instance.yaw = std::fmax(instance.yaw, -89.0f);
-	instance.pitch = std::fmin(instance.pitch, 89.0f);
-	instance.pitch = std::fmax(instance.pitch, -89.0f);
 }
 
 void InputProcessor::ProcessMouseScroll(GLFWwindow * _window, double _x, double _y)
 {
-	auto & instance = GetInstance();
+	const auto & instance = GetInstance();
 
-	instance.fov -= _y * MOUSE_SENSITIVITY;
-	instance.fov = std::fmax(instance.fov, 1.0f);
-	instance.fov = std::fmin(instance.fov, 45.0f);
+	const double deltaX = _x * MOUSE_SENSITIVITY;
+	const double deltaY = _y * MOUSE_SENSITIVITY;
+
+	// move to dispatch
+	for (const auto & it : instance.m_Input)
+		it->ProcessMouseWheel(deltaX, deltaY);
 }
 
 void InputProcessor::DispatchInput(const double _timeDelta)
@@ -72,6 +78,7 @@ void InputProcessor::DispatchInput(const double _timeDelta)
 		const auto & savedInputInfo = it.first;
 		const auto & savedAction = it.second;
 
+		auto w = m_keys[savedInputInfo.key];
 		const auto & pressedKeyInfo = m_keys[savedInputInfo.key];
 
 		// not in the list
@@ -90,4 +97,13 @@ void InputProcessor::DispatchInput(const double _timeDelta)
 				m_keys[savedInputInfo.key] = InputInfo();
 		}
 	}
+
+	// temporary hack for getting rid of GLFW_REPEAT
+	// todo rethink input system to be more user-friendly
+	for (auto & it : m_keys)
+		if (it.action == GLFW_REPEAT)
+			it.action = GLFW_PRESS;
+
+	for (const auto & it : m_Input)
+		it->ProcessInput(m_keys, _timeDelta);
 }

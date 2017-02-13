@@ -1,9 +1,12 @@
 #pragma once
 
 #include <map>
+#include <vector>
 #include <GLFW/glfw3.h>
+
 #include "InputAction.h"
 #include "InputInfo.h"
+#include "IInputable.h"
 
 class InputProcessor
 {
@@ -12,20 +15,31 @@ private:
 
 private:
 	std::map<InputInfo, InputAction> m_KeyActionMap;
-	InputInfo m_keys[1024];
+	std::vector<InputInfo> m_keys;
+
+	std::vector<IInputable *> m_Input;
 
 	GLfloat m_MouseX;
 	GLfloat m_MouseY;
 
+	GLfloat m_MouseDeltaX;
+	GLfloat m_MouseDeltaY;
+
 	bool m_isFirstFocus = true;
-
-public:
-	GLfloat yaw = 45.0f; // move it to camera class
-	GLfloat pitch = 45.0f;
-	GLfloat fov = 45.0f;
-
+	
 private:
-	InputProcessor() = default;
+	InputProcessor()
+		:
+		m_KeyActionMap(),
+		m_keys(1024),
+		m_Input(),
+		m_MouseX(),
+		m_MouseY(),
+		m_MouseDeltaX(),
+		m_MouseDeltaY()
+	{
+		// Empty
+	};
 	~InputProcessor() = default;
 	
 	InputProcessor(InputProcessor const &) = default; // prevent copies
@@ -33,7 +47,7 @@ private:
 
 public:
 	// happy little singletone CoolStoryBob
-	static InputProcessor& GetInstance()
+	static InputProcessor & GetInstance()
 	{
 		static InputProcessor instance;
 		return instance;
@@ -48,6 +62,7 @@ public:
 	
 	void SetAction(const InputInfo _key, const InputAction & _action);
 	void SetActions(decltype(m_KeyActionMap) & _init);
+	const bool RegisterInputObject(IInputable * _object);
 
 	// not really needed and should be some redone in a more convinient way
 	static const char * const logname() { return "[InputProcessor]"; }

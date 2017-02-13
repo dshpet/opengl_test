@@ -156,6 +156,8 @@
     <ClCompile Include="Profiler.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="IInputable.h" />
     <ClInclude Include="InputAction.h" />
     <ClInclude Include="InputInfo.h" />
     <ClInclude Include="InputProcessor.h" />

@@ -21,6 +21,7 @@
 #include "InputAction.h"
 #include "InputInfo.h"
 #include "Profiler.h"
+#include "Camera.h"
 
 //
 // Globals
@@ -33,15 +34,7 @@ Profiler g_Profiler;
 glm::mat4 view;
 glm::mat4 projection;
 
-// camera
-glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-
-glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
-glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
-glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
+Camera camera;
 
 //
 // Constants
@@ -68,7 +61,7 @@ void InitInputProcessor(GLFWwindow * window) // reconsider the function
 {
 	// still looks bad
 	std::map<InputInfo, InputAction> init = {
-		{
+		/*{
 			InputInfo { GLFW_KEY_W , 0, GLFW_PRESS, 0 },
 			InputAction {
 				[&](const double _timeDelta) {
@@ -121,7 +114,7 @@ void InitInputProcessor(GLFWwindow * window) // reconsider the function
 				},
 				true
 			}
-		},
+		},*/
 		{
 			InputInfo{ GLFW_KEY_UP , 0, GLFW_PRESS, 0 },
 			InputAction {
@@ -163,6 +156,7 @@ void InitInputProcessor(GLFWwindow * window) // reconsider the function
 	};
 
 	g_InputProcessor.SetActions(init);
+	g_InputProcessor.RegisterInputObject(&camera);
 }
 
 int main()
@@ -360,18 +354,8 @@ int main()
 
 		glUniform1f(glGetUniformLocation(shaderId, "blending"), g_blending);
 
-		GLfloat radius = 10.0f;
-		GLfloat camX = sin(time) * radius;
-		GLfloat camZ = cos(time) * radius;
-
-		glm::vec3 front;
-		front.x = cos(glm::radians(g_InputProcessor.pitch)) * cos(glm::radians(g_InputProcessor.yaw));
-		front.y = sin(glm::radians(g_InputProcessor.pitch));
-		front.z = cos(glm::radians(g_InputProcessor.pitch)) * sin(glm::radians(g_InputProcessor.yaw));
-		cameraFront = glm::normalize(front);
-
-		view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-		projection = glm::perspective(g_InputProcessor.fov, (float)WIDTH / (float)HEIGHT, NEAR_CLIP, FAR_CLIP);
+		view = camera.GetViewMatrix();
+		projection = glm::perspective(camera.GetFOV(), (float)WIDTH / (float)HEIGHT, NEAR_CLIP, FAR_CLIP);
 
 		glUniformMatrix4fv(glGetUniformLocation(shaderId, "view"), 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(glGetUniformLocation(shaderId, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
