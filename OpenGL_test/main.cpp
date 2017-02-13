@@ -61,60 +61,6 @@ void InitInputProcessor(GLFWwindow * window) // reconsider the function
 {
 	// still looks bad
 	std::map<InputInfo, InputAction> init = {
-		/*{
-			InputInfo { GLFW_KEY_W , 0, GLFW_PRESS, 0 },
-			InputAction {
-				[&](const double _timeDelta) {
-					cameraPos += (CAMERA_SPEED * GLfloat(_timeDelta)) * cameraFront;
-				},
-				true
-			}
-		},
-		{
-			InputInfo{ GLFW_KEY_S , 0, GLFW_PRESS, 0 },
-			InputAction {
-				[&](const double _timeDelta) {
-					cameraPos -= (CAMERA_SPEED * GLfloat(_timeDelta)) * cameraFront;
-				},
-				true
-			}
-		},
-		{
-			InputInfo{ GLFW_KEY_A , 0, GLFW_PRESS, 0 },
-			InputAction {
-				[&](const double _timeDelta) {
-					cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * (CAMERA_SPEED * GLfloat(_timeDelta));
-				},
-				true
-			}
-		},
-		{
-			InputInfo{ GLFW_KEY_D , 0, GLFW_PRESS, 0 },
-			InputAction {
-				[&](const double _timeDelta) {
-					cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * (CAMERA_SPEED * GLfloat(_timeDelta));
-				},
-				true
-			}
-		},
-		{
-			InputInfo{ GLFW_KEY_Q , 0, GLFW_PRESS, 0 },
-			InputAction {
-				[&](const double _timeDelta) {
-					//cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * CAMERA_SPEED;
-				},
-				true
-			}
-		},
-		{
-			InputInfo{ GLFW_KEY_E , 0, GLFW_PRESS, 0 },
-			InputAction {
-				[&](const double _timeDelta) {
-					//cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * CAMERA_SPEED;
-				},
-				true
-			}
-		},*/
 		{
 			InputInfo{ GLFW_KEY_UP , 0, GLFW_PRESS, 0 },
 			InputAction {
