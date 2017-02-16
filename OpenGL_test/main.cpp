@@ -62,7 +62,7 @@ void InitInputProcessor(GLFWwindow * window) // reconsider the function
 	// still looks bad
 	std::map<InputInfo, InputAction> init = {
 		{
-			InputInfo{ GLFW_KEY_UP , 0, GLFW_PRESS, 0 },
+			InputInfo{ GLFW_KEY_UP, 0, GLFW_PRESS, 0 },
 			InputAction {
 				[&](const double _timeDelta) {
 					g_blending += BLENDING_DELTA;
@@ -72,7 +72,7 @@ void InitInputProcessor(GLFWwindow * window) // reconsider the function
 			}
 		},
 		{
-			InputInfo{ GLFW_KEY_DOWN , 0, GLFW_PRESS, 0 },
+			InputInfo{ GLFW_KEY_DOWN, 0, GLFW_PRESS, 0 },
 			InputAction {
 				[&](const double _timeDelta) {
 					g_blending -= BLENDING_DELTA;
@@ -82,7 +82,7 @@ void InitInputProcessor(GLFWwindow * window) // reconsider the function
 			}
 		},
 		{
-			InputInfo{ GLFW_KEY_ESCAPE , 0, GLFW_PRESS, 0 },
+			InputInfo{ GLFW_KEY_ESCAPE, 0, GLFW_PRESS, 0 },
 			InputAction {
 				[window](const double _timeDelta) {
 					glfwSetWindowShouldClose(window, GL_TRUE);
@@ -91,7 +91,7 @@ void InitInputProcessor(GLFWwindow * window) // reconsider the function
 			}
 		},
 		{
-			InputInfo{ GLFW_KEY_F1 , 0, GLFW_PRESS, 0 },
+			InputInfo{ GLFW_KEY_F1, 0, GLFW_PRESS, 0 },
 			InputAction{
 				[&](const double _timeDelta) {
 					g_Profiler.PrintInfo();
@@ -99,6 +99,25 @@ void InitInputProcessor(GLFWwindow * window) // reconsider the function
 				false
 			}
 		},
+		{
+			InputInfo{ GLFW_KEY_F2, 0, GLFW_PRESS, 0 },
+			InputAction{
+				[&](const double _timeDelta) {
+					g_Profiler.TakeScreenshot();
+				},
+				false
+			}
+		},
+		{
+			InputInfo{ GLFW_KEY_F3, 0, GLFW_PRESS, 0 },
+			InputAction{
+				[&](const double _timeDelta) {
+					g_Profiler.TakeScreenshotAsync();
+				},
+				false
+			}
+		},
+
 	};
 
 	g_InputProcessor.SetActions(init);
@@ -149,7 +168,50 @@ int main()
 		"../Shaders/fragment.frag"
 	);
 
-	const GLfloat vertices[] = {
+	const GLfloat cubeVertices[] = {
+      -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+       0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+       0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+       0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+      -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+      -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+	  
+      -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+       0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+       0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+       0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+      -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+      -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	  
+      -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+      -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+      -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+      -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+      -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+      -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	  
+       0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+       0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+       0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+       0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+       0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+       0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	  
+      -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+       0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+       0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+       0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+      -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+      -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	  
+      -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+       0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+       0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+       0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+      -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+      -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+	};
+	const GLfloat lightVertices[] = {
       -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
        0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
@@ -193,7 +255,7 @@ int main()
       -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
 
-	glm::vec3 cubePositions[] = {
+	const glm::vec3 const cubePositions[]= {
 	  glm::vec3( 0.0f,  0.0f,  0.0f), 
 	  glm::vec3( 2.0f,  5.0f, -15.0f), 
 	  glm::vec3(-1.5f, -2.2f, -2.5f),  
@@ -206,6 +268,9 @@ int main()
 	  glm::vec3(-1.3f,  1.0f, -1.5f)  
 	};
 
+	const glm::vec3 lightPosition = glm::vec3(0.0f, 1.0f, 0.0f);
+	
+	// cube section
 	GLuint VAO;
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
@@ -213,7 +278,7 @@ int main()
 	GLuint VBO;
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
 	
 	// Vertex pos
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid *)nullptr);
@@ -272,6 +337,17 @@ int main()
 	SOIL_free_image_data(img);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
+	// lamp section
+	GLuint lightVAO;
+	glGenVertexArrays(1, &lightVAO);
+	glBindVertexArray(lightVAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), nullptr);
+	glEnableVertexAttribArray(0);
+	glBindVertexArray(0);
+
 	glEnable(GL_DEPTH_TEST);
 
 	while (!glfwWindowShouldClose(window))
@@ -306,6 +382,11 @@ int main()
 		glUniformMatrix4fv(glGetUniformLocation(shaderId, "view"), 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(glGetUniformLocation(shaderId, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
+		GLint objectColorLoc = glGetUniformLocation(shaderId, "objectColor");
+		GLint lightColorLoc = glGetUniformLocation(shaderId, "lightColor");
+		glUniform3f(objectColorLoc, 1.0f, 0.5f, 0.31f);
+		glUniform3f(lightColorLoc, 1.0f, 1.0f, 1.0f); // Also set light's color (white)
+
 		shader.Use();
 
 		glBindVertexArray(VAO);		
@@ -326,7 +407,7 @@ int main()
 		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
-		glfwSwapBuffers(window);
+		glfwSwapBuffers(window);		
 
 		g_Profiler.OnFrameEnd();
 	}

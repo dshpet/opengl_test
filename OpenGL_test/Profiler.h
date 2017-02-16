@@ -46,6 +46,9 @@ public:
 	const double GetAverageFrameTime() const;
 	const double GetLastFrameDelta() const;
 
+	// Utility
+	void TakeScreenshot() const;
+
 private:
 	const double GetAverageFPS() const { return 1000.0 / m_AverageFrameTime; };
 	const auto GetCurrentTime() const;
