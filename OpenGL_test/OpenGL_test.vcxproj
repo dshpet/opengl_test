@@ -169,8 +169,10 @@
     <ResourceCompile Include="OpenGL_test.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Shaders\copypaste_fragment.frag" />
-    <None Include="..\Shaders\copypaste_vertex.vs" />
+    <None Include="..\Shaders\lamp.frag" />
+    <None Include="..\Shaders\lamp.vs" />
+    <None Include="..\Shaders\lighting.frag" />
+    <None Include="..\Shaders\lighting.vs" />
     <None Include="..\Shaders\fragment.frag" />
     <None Include="..\Shaders\vertex.vs" />
   </ItemGroup>

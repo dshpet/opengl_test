@@ -20,7 +20,7 @@ private:
 
 public:
 	Camera() :
-		m_Position(glm::vec3(0.0f, 0.0f, 0.0f)),
+		m_Position(glm::vec3(0.0f, 0.0f, 3.0f)),
 		m_Up(glm::vec3(0.0f, 1.0f, 0.0f)),
 		m_Yaw(YAW),
 		m_Pitch(PITCH),

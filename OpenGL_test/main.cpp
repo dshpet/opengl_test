@@ -31,6 +31,7 @@ GLfloat g_blending = 0.2f;
 InputProcessor & g_InputProcessor = InputProcessor::GetInstance();
 Profiler g_Profiler;
 
+glm::mat4 model;
 glm::mat4 view;
 glm::mat4 projection;
 
@@ -107,17 +108,7 @@ void InitInputProcessor(GLFWwindow * window) // reconsider the function
 				},
 				false
 			}
-		},
-		{
-			InputInfo{ GLFW_KEY_F3, 0, GLFW_PRESS, 0 },
-			InputAction{
-				[&](const double _timeDelta) {
-					g_Profiler.TakeScreenshotAsync();
-				},
-				false
-			}
-		},
-
+		}
 	};
 
 	g_InputProcessor.SetActions(init);
@@ -163,109 +154,57 @@ int main()
 	glfwSetCursorPosCallback(window, g_InputProcessor.ProcessMouseMovement);
 	glfwSetScrollCallback(window, g_InputProcessor.ProcessMouseScroll);
 
-	const Shader shader(
-		"../Shaders/vertex.vs",
-		"../Shaders/fragment.frag"
+	const Shader lightingShader(
+		"../Shaders/lighting.vs",
+		"../Shaders/lighting.frag"
+	);
+	const Shader lampShader(
+		"../Shaders/lamp.vs",
+		"../Shaders/lamp.frag"
 	);
 
-	const GLfloat cubeVertices[] = {
-      -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-       0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-       0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-       0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-      -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-      -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-	  
-      -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-       0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-       0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-       0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-      -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-      -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	  
-      -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-      -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-      -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-      -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-      -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-      -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	  
-       0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-       0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-       0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-       0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-       0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-       0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	  
-      -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-       0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-       0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-       0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-      -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-      -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	  
-      -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-       0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-       0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-       0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-      -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-      -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-	};
 	const GLfloat lightVertices[] = {
-      -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-       0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-       0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-       0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-      -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-      -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+      -0.5f, -0.5f, -0.5f,
+       0.5f, -0.5f, -0.5f,
+       0.5f,  0.5f, -0.5f,
+       0.5f,  0.5f, -0.5f,
+      -0.5f,  0.5f, -0.5f,
+      -0.5f, -0.5f, -0.5f,
 	  
-      -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-       0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-       0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-       0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-      -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-      -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+      -0.5f, -0.5f,  0.5f,
+       0.5f, -0.5f,  0.5f,
+       0.5f,  0.5f,  0.5f,
+       0.5f,  0.5f,  0.5f,
+      -0.5f,  0.5f,  0.5f,
+      -0.5f, -0.5f,  0.5f,
 	  
-      -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-      -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-      -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-      -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-      -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-      -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+      -0.5f,  0.5f,  0.5f,
+      -0.5f,  0.5f, -0.5f,
+      -0.5f, -0.5f, -0.5f,
+      -0.5f, -0.5f, -0.5f,
+      -0.5f, -0.5f,  0.5f,
+      -0.5f,  0.5f,  0.5f,
 	  
-       0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-       0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-       0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-       0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-       0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-       0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+       0.5f,  0.5f,  0.5f,
+       0.5f,  0.5f, -0.5f,
+       0.5f, -0.5f, -0.5f,
+       0.5f, -0.5f, -0.5f,
+       0.5f, -0.5f,  0.5f,
+       0.5f,  0.5f,  0.5f,
 	  
-      -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-       0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-       0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-       0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-      -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-      -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+      -0.5f, -0.5f, -0.5f,
+       0.5f, -0.5f, -0.5f,
+       0.5f, -0.5f,  0.5f,
+       0.5f, -0.5f,  0.5f,
+      -0.5f, -0.5f,  0.5f,
+      -0.5f, -0.5f, -0.5f,
 	  
-      -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-       0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-       0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-       0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-      -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-      -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-	};
-
-	const glm::vec3 const cubePositions[]= {
-	  glm::vec3( 0.0f,  0.0f,  0.0f), 
-	  glm::vec3( 2.0f,  5.0f, -15.0f), 
-	  glm::vec3(-1.5f, -2.2f, -2.5f),  
-	  glm::vec3(-3.8f, -2.0f, -12.3f),  
-	  glm::vec3( 2.4f, -0.4f, -3.5f),  
-	  glm::vec3(-1.7f,  3.0f, -7.5f),  
-	  glm::vec3( 1.3f, -2.0f, -2.5f),  
-	  glm::vec3( 1.5f,  2.0f, -2.5f), 
-	  glm::vec3( 1.5f,  0.2f, -1.5f), 
-	  glm::vec3(-1.3f,  1.0f, -1.5f)  
+      -0.5f,  0.5f, -0.5f,
+       0.5f,  0.5f, -0.5f,
+       0.5f,  0.5f,  0.5f,
+       0.5f,  0.5f,  0.5f,
+      -0.5f,  0.5f,  0.5f,
+      -0.5f,  0.5f, -0.5f,
 	};
 
 	const glm::vec3 lightPosition = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -281,62 +220,10 @@ int main()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
 	
 	// Vertex pos
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid *)nullptr);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid *)nullptr);
 	glEnableVertexAttribArray(0);
-
-	// texture
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid *)(3 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(1);
-
 	glBindVertexArray(0);
-
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-	// create textures
-	// texture 1
-	GLuint texture1;
-	glGenTextures(1, &texture1);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture1);
-	// Set the texture wrapping parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	// Set texture filtering parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	// load texture image
-	int imgWidth;
-	int imgHeight;
-	unsigned char * img = SOIL_load_image("../Textures/wall.jpg", &imgWidth, &imgHeight, nullptr, SOIL_LOAD_RGB);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imgWidth, imgHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, img);
-	glGenerateMipmap(GL_TEXTURE_2D);
 	
-	SOIL_free_image_data(img);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	// texture 2
-	GLuint texture2;
-	glGenTextures(1, &texture2);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, texture2);
-	// Set the texture wrapping parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-	// Set texture filtering parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	// load texture image
-	img = SOIL_load_image("../Textures/awesomeface.png", &imgWidth, &imgHeight, nullptr, SOIL_LOAD_RGB);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imgWidth, imgHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, img);
-	glGenerateMipmap(GL_TEXTURE_2D);
-
-	SOIL_free_image_data(img);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
 	// lamp section
 	GLuint lightVAO;
 	glGenVertexArrays(1, &lightVAO);
@@ -344,10 +231,11 @@ int main()
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), nullptr);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid *)nullptr);
 	glEnableVertexAttribArray(0);
 	glBindVertexArray(0);
 
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glEnable(GL_DEPTH_TEST);
 
 	while (!glfwWindowShouldClose(window))
@@ -359,53 +247,44 @@ int main()
 
 		g_InputProcessor.DispatchInput(deltaTime);
 
-		const auto time = glfwGetTime();
-
 		glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		const GLuint shaderId = shader.GetProgramId();
+		// render cube
+		lightingShader.Use();
+		const GLuint lightingShaderID = lightingShader.GetProgramId();
 
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture1);
-		glUniform1i(glGetUniformLocation(shaderId, "assigned_texture1"), 0);
-
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, texture2);
-		glUniform1i(glGetUniformLocation(shaderId, "assigned_texture2"), 1);
-
-		glUniform1f(glGetUniformLocation(shaderId, "blending"), g_blending);
-
-		view = camera.GetViewMatrix();
-		projection = glm::perspective(camera.GetFOV(), (float)WIDTH / (float)HEIGHT, NEAR_CLIP, FAR_CLIP);
-
-		glUniformMatrix4fv(glGetUniformLocation(shaderId, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(glGetUniformLocation(shaderId, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-
-		GLint objectColorLoc = glGetUniformLocation(shaderId, "objectColor");
-		GLint lightColorLoc = glGetUniformLocation(shaderId, "lightColor");
+		GLint objectColorLoc = glGetUniformLocation(lightingShaderID, "objectColor");
+		GLint lightColorLoc = glGetUniformLocation(lightingShaderID, "lightColor");
 		glUniform3f(objectColorLoc, 1.0f, 0.5f, 0.31f);
 		glUniform3f(lightColorLoc, 1.0f, 1.0f, 1.0f); // Also set light's color (white)
 
-		shader.Use();
+		view = camera.GetViewMatrix();
+		projection = glm::perspective(camera.GetFOV(), (float)WIDTH / (float)HEIGHT, NEAR_CLIP, FAR_CLIP);
+		model = glm::mat4();
+		
+		glUniformMatrix4fv(glGetUniformLocation(lightingShaderID, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(glGetUniformLocation(lightingShaderID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+		glUniformMatrix4fv(glGetUniformLocation(lightingShaderID, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
-		glBindVertexArray(VAO);		
-		for (const auto & pos : cubePositions)
-		{
-			glm::mat4 model;
-			model = glm::translate(model, pos);
-			const auto angle = GLfloat(1.0f * sin(time));
-			const auto x = GLfloat(sin(time));
-			const auto y = GLfloat(cos(time));
-			const auto z = GLfloat(sin(time) * cos(time));
-			model = glm::rotate(model, angle, glm::vec3(x, y, z));
-			glUniformMatrix4fv(glGetUniformLocation(shaderId, "model"), 1, GL_FALSE, glm::value_ptr(model));
-
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
-
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
-		glBindTexture(GL_TEXTURE_2D, 0);
+
+		// render lamp
+		lampShader.Use();
+		const GLuint lampShaderID = lampShader.GetProgramId();
+
+		model = glm::translate(model, lightPosition);
+		model = glm::scale(model, glm::vec3(0.2f)); // Make it a smaller cube
+
+		glUniformMatrix4fv(glGetUniformLocation(lampShaderID, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(glGetUniformLocation(lampShaderID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+		glUniformMatrix4fv(glGetUniformLocation(lampShaderID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+
+		glBindVertexArray(lightVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glBindVertexArray(0);
 
 		glfwSwapBuffers(window);		
 
