@@ -279,6 +279,8 @@ int main()
 		glUniform3f(glGetUniformLocation(lightingShaderID, "objectColor"), 1.0f, 0.5f, 0.31f);
 		glUniform3f(glGetUniformLocation(lightingShaderID, "lightColor"),  1.0f, 1.0f, 1.0f); // Also set light's color (white)
 		glUniform3f(glGetUniformLocation(lightingShaderID, "lightPos"), lightPosition.x, lightPosition.y, lightPosition.z); // TODO set as vector
+		const auto & cameraPos = camera.GetPosition();
+		glUniform3f(glGetUniformLocation(lightingShaderID, "viewPos"), cameraPos.x, cameraPos.y, cameraPos.z); // TODO set as vector
 
 		view = camera.GetViewMatrix();
 		projection = glm::perspective(camera.GetFOV(), (float)WIDTH / (float)HEIGHT, NEAR_CLIP, FAR_CLIP);
