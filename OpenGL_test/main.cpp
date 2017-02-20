@@ -35,6 +35,8 @@ glm::mat4 model;
 glm::mat4 view;
 glm::mat4 projection;
 
+glm::vec3 lightPosition = glm::vec3(-1.0f, 3.0f, -1.0f);
+
 Camera camera;
 
 //
@@ -108,6 +110,24 @@ void InitInputProcessor(GLFWwindow * window) // reconsider the function
 				},
 				false
 			}
+		},
+		{
+			InputInfo{ GLFW_KEY_Q, 0, GLFW_PRESS, 0 },
+			InputAction{
+				[&](const double _timeDelta) {
+					lightPosition.x += 0.02 * _timeDelta;
+				},
+				false
+			}
+		},
+		{
+			InputInfo{ GLFW_KEY_E, 0, GLFW_PRESS, 0 },
+			InputAction{
+				[&](const double _timeDelta) {
+					lightPosition.x -= 0.02 * _timeDelta;
+				},
+				false
+			}
 		}
 	};
 
@@ -163,51 +183,49 @@ int main()
 		"../Shaders/lamp.frag"
 	);
 
-	const GLfloat lightVertices[] = {
-      -0.5f, -0.5f, -0.5f,
-       0.5f, -0.5f, -0.5f,
-       0.5f,  0.5f, -0.5f,
-       0.5f,  0.5f, -0.5f,
-      -0.5f,  0.5f, -0.5f,
-      -0.5f, -0.5f, -0.5f,
-	  
-      -0.5f, -0.5f,  0.5f,
-       0.5f, -0.5f,  0.5f,
-       0.5f,  0.5f,  0.5f,
-       0.5f,  0.5f,  0.5f,
-      -0.5f,  0.5f,  0.5f,
-      -0.5f, -0.5f,  0.5f,
-	  
-      -0.5f,  0.5f,  0.5f,
-      -0.5f,  0.5f, -0.5f,
-      -0.5f, -0.5f, -0.5f,
-      -0.5f, -0.5f, -0.5f,
-      -0.5f, -0.5f,  0.5f,
-      -0.5f,  0.5f,  0.5f,
-	  
-       0.5f,  0.5f,  0.5f,
-       0.5f,  0.5f, -0.5f,
-       0.5f, -0.5f, -0.5f,
-       0.5f, -0.5f, -0.5f,
-       0.5f, -0.5f,  0.5f,
-       0.5f,  0.5f,  0.5f,
-	  
-      -0.5f, -0.5f, -0.5f,
-       0.5f, -0.5f, -0.5f,
-       0.5f, -0.5f,  0.5f,
-       0.5f, -0.5f,  0.5f,
-      -0.5f, -0.5f,  0.5f,
-      -0.5f, -0.5f, -0.5f,
-	  
-      -0.5f,  0.5f, -0.5f,
-       0.5f,  0.5f, -0.5f,
-       0.5f,  0.5f,  0.5f,
-       0.5f,  0.5f,  0.5f,
-      -0.5f,  0.5f,  0.5f,
-      -0.5f,  0.5f, -0.5f,
-	};
+	const GLfloat vertices[] = {
+		-0.5f, -0.5f, -0.5f,	  0.0f,  0.0f, -1.0f,
+		 0.5f, -0.5f, -0.5f,	  0.0f,  0.0f, -1.0f, 
+		 0.5f,  0.5f, -0.5f,	  0.0f,  0.0f, -1.0f, 
+		 0.5f,  0.5f, -0.5f,	  0.0f,  0.0f, -1.0f, 
+		-0.5f,  0.5f, -0.5f,	  0.0f,  0.0f, -1.0f, 
+		-0.5f, -0.5f, -0.5f,	  0.0f,  0.0f, -1.0f, 
 
-	const glm::vec3 lightPosition = glm::vec3(0.0f, 1.0f, 0.0f);
+		-0.5f, -0.5f,  0.5f,	  0.0f,  0.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,	  0.0f,  0.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,	  0.0f,  0.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,	  0.0f,  0.0f, 1.0f,
+		-0.5f,  0.5f,  0.5f,	  0.0f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,	  0.0f,  0.0f, 1.0f,
+
+		-0.5f,  0.5f,  0.5f,	 -1.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f,	 -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,	 -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,	 -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f,  0.5f,	 -1.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f,	 -1.0f,  0.0f,  0.0f,
+
+		 0.5f,  0.5f,  0.5f,	  1.0f,  0.0f,  0.0f,
+		 0.5f,  0.5f, -0.5f,	  1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,	  1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,	  1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,	  1.0f,  0.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,	  1.0f,  0.0f,  0.0f,
+
+		-0.5f, -0.5f, -0.5f,	  0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,	  0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,	  0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,	  0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f,  0.5f,	  0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,	  0.0f, -1.0f,  0.0f,
+
+		-0.5f,  0.5f, -0.5f,	  0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f, -0.5f,	  0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,	  0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,	  0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f,	  0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f,	  0.0f,  1.0f,  0.0f
+	};
 	
 	// cube section
 	GLuint VAO;
@@ -217,11 +235,13 @@ int main()
 	GLuint VBO;
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(lightVertices), lightVertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 	
 	// Vertex pos
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid *)nullptr);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid *)nullptr);
 	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid *)(3 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(1);
 	glBindVertexArray(0);
 	
 	// lamp section
@@ -231,7 +251,7 @@ int main()
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid *)nullptr);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid *)nullptr);
 	glEnableVertexAttribArray(0);
 	glBindVertexArray(0);
 
@@ -254,10 +274,9 @@ int main()
 		lightingShader.Use();
 		const GLuint lightingShaderID = lightingShader.GetProgramId();
 
-		GLint objectColorLoc = glGetUniformLocation(lightingShaderID, "objectColor");
-		GLint lightColorLoc = glGetUniformLocation(lightingShaderID, "lightColor");
-		glUniform3f(objectColorLoc, 1.0f, 0.5f, 0.31f);
-		glUniform3f(lightColorLoc, 1.0f, 1.0f, 1.0f); // Also set light's color (white)
+		glUniform3f(glGetUniformLocation(lightingShaderID, "objectColor"), 1.0f, 0.5f, 0.31f);
+		glUniform3f(glGetUniformLocation(lightingShaderID, "lightColor"),  1.0f, 1.0f, 1.0f); // Also set light's color (white)
+		glUniform3f(glGetUniformLocation(lightingShaderID, "lightPos"), lightPosition.x, lightPosition.y, lightPosition.z); // TODO set as vector
 
 		view = camera.GetViewMatrix();
 		projection = glm::perspective(camera.GetFOV(), (float)WIDTH / (float)HEIGHT, NEAR_CLIP, FAR_CLIP);
