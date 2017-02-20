@@ -98,6 +98,8 @@ void InitInputProcessor(GLFWwindow * window) // reconsider the function
 			InputAction{
 				[&](const double _timeDelta) {
 					g_Profiler.PrintInfo();
+					auto && camPos = camera.GetPosition();
+					printf("Camera pos : (%f, %f, %f)", camPos.x, camPos.y, camPos.z);
 				},
 				false
 			}

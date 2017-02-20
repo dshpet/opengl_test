@@ -11,7 +11,7 @@ class Camera :
 	public IInputable
 {
 private:
-	static constexpr GLfloat YAW			= -90.0f;
+	static constexpr GLfloat YAW			= 0.0f;
 	static constexpr GLfloat PITCH			= 0.0f;
 	static constexpr GLfloat ZOOM			= 45.0f;
 	static constexpr GLfloat SPEED			= 0.005f;
@@ -20,7 +20,7 @@ private:
 
 public:
 	Camera() :
-		m_Position(glm::vec3(0.0f, 0.0f, 3.0f)),
+		m_Position(glm::vec3(-5.0f, 2.0f, -1.0f)),
 		m_Up(glm::vec3(0.0f, 1.0f, 0.0f)),
 		m_Yaw(YAW),
 		m_Pitch(PITCH),
@@ -110,6 +110,11 @@ public:
 	const GLfloat GetFOV() const
 	{
 		return m_Zoom;
+	}
+
+	const auto GetPosition() const
+	{
+		return m_Position;
 	}
 
 private:
