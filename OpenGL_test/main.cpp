@@ -276,9 +276,28 @@ int main()
 		lightingShader.Use();
 		const GLuint lightingShaderID = lightingShader.GetProgramId();
 
-		glUniform3f(glGetUniformLocation(lightingShaderID, "objectColor"), 1.0f, 0.5f, 0.31f);
-		glUniform3f(glGetUniformLocation(lightingShaderID, "lightColor"),  1.0f, 1.0f, 1.0f); // Also set light's color (white)
-		glUniform3f(glGetUniformLocation(lightingShaderID, "lightPos"), lightPosition.x, lightPosition.y, lightPosition.z); // TODO set as vector
+		//auto time = glfwGetTime();
+		//lightPosition += glm::vec3(cos(time) * 0.001, sin(time) * 0.001, 0);
+
+		GLint matAmbientLoc	 = glGetUniformLocation(lightingShaderID, "material.ambient");
+		GLint matDiffuseLoc	 = glGetUniformLocation(lightingShaderID, "material.diffuse");
+		GLint matSpecularLoc = glGetUniformLocation(lightingShaderID, "material.specular");
+		GLint matShineLoc	 = glGetUniformLocation(lightingShaderID, "material.shininess");
+
+		glUniform3f(matAmbientLoc, 1.0f, 0.5f, 0.31f);
+		glUniform3f(matDiffuseLoc, 1.0f, 0.5f, 0.31f);
+		glUniform3f(matSpecularLoc, 0.5f, 0.5f, 0.5f);
+		glUniform1f(matShineLoc, 32.0f);
+
+		GLint lightAmbientLoc  = glGetUniformLocation(lightingShaderID, "light.ambient");
+		GLint lightDiffuseLoc  = glGetUniformLocation(lightingShaderID, "light.diffuse");
+		GLint lightSpecularLoc = glGetUniformLocation(lightingShaderID, "light.specular");
+
+		glUniform3f(lightAmbientLoc, 0.2f, 0.2f, 0.2f);
+		glUniform3f(lightDiffuseLoc, 0.5f, 0.5f, 0.5f);
+		glUniform3f(lightSpecularLoc, 1.0f, 1.0f, 1.0f);
+
+		glUniform3f(glGetUniformLocation(lightingShaderID, "light.position"), lightPosition.x, lightPosition.y, lightPosition.z); // TODO set as vector
 		const auto & cameraPos = camera.GetPosition();
 		glUniform3f(glGetUniformLocation(lightingShaderID, "viewPos"), cameraPos.x, cameraPos.y, cameraPos.z); // TODO set as vector
 
